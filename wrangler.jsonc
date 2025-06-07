@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-next-app",
+	"name": "pick-a-bot-2025",
 	"compatibility_date": "2025-06-07",
 	"compatibility_flags": [
 		"nodejs_compat"
