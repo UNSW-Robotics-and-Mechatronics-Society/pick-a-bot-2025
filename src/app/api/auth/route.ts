@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const { name, email } = body as any;
-    console.log('DB_URL:', process.env.DB_URL)
     const supabase = createClient(process.env.DB_URL as string, process.env.DB_SECRET_KEY as string)
 
     let dbResp = await supabase.from('user').select('id').eq('email', email).maybeSingle()
