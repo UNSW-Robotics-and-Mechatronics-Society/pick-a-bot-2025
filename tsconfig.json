@@ -23,7 +23,8 @@
     },
     "types": [
         "./env.d.ts",
-        "node"
+        "node",
+        "jest"
     ]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

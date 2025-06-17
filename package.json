@@ -10,7 +10,8 @@
 		"pages:build": "npx @cloudflare/next-on-pages",
 		"preview": "npm run pages:build && wrangler pages dev",
 		"deploy": "npm run pages:build && wrangler pages deploy",
-		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./env.d.ts"
+		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./env.d.ts",
+		"test": "jest"
 	},
 	"dependencies": {
 		"@chakra-ui/react": "^3.20.0",
@@ -32,11 +33,14 @@
 		"@chakra-ui/cli": "^3.20.0",
 		"@cloudflare/next-on-pages": "^1.13.12",
 		"@tailwindcss/postcss": "^4",
+		"@types/jest": "^29.5.14",
 		"@types/node": "^20.19.0",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"jest": "^30.0.0",
 		"msw": "^2.10.0",
 		"tailwindcss": "^4",
+		"ts-jest": "^29.4.0",
 		"typescript": "^5",
 		"vercel": "^42.3.0",
 		"wrangler": "^4.19.1"
