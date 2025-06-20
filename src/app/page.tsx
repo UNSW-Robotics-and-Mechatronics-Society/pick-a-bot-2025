@@ -10,17 +10,12 @@ import {
   ListItem,
   Link
 } from "@chakra-ui/react";
+import { useLocalStorage } from "usehooks-ts";
 
 
 export default function LandingPage() {
   
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    // This runs only in the browser
-    const jwt = localStorage.getItem("jwt");
-    setToken(jwt);
-  }, []);
+  const [jwt, setJWT] = useLocalStorage('jwt', '');
 
   return (
     <Box padding="4" bg="gray.900" color="white" h="dvh" w="dvw" fontSize="md">
@@ -61,7 +56,7 @@ export default function LandingPage() {
         </Box>
         <Center>
         <Button bg="blue.400" borderWidth="2px" borderColor="blue.600" width="4/6" size="xl" fontWeight="bold" asChild>
-          <Link href={token ? 'dashboard' : 'login'}>
+          <Link href={jwt ? 'dashboard' : 'login'}>
           Go
           </Link>
         </Button>
