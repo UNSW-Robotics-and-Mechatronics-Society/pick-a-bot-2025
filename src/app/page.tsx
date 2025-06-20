@@ -7,7 +7,6 @@ import {
   Center,
   Heading,
   List,
-  ListItem,
   Link
 } from "@chakra-ui/react";
 import { useLocalStorage } from "usehooks-ts";
@@ -56,7 +55,7 @@ export default function LandingPage() {
         </Box>
         <Center>
         <Button bg="blue.400" borderWidth="2px" borderColor="blue.600" width="4/6" size="xl" fontWeight="bold" asChild>
-          <Link href={jwt ? 'dashboard' : 'login'}>
+          <Link href={jwt ? '/dashboard' : '/login'}>
           Go
           </Link>
         </Button>
