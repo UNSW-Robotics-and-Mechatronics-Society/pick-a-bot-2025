@@ -82,13 +82,11 @@ export default function LandingPage() {
           size="lg"
           fontWeight="bold"
           width="5/6"
-          textAlign="center"
+          textAlign="inherit"
+          color="white"
           asChild
         >
-          <NextLink
-            href={jwt ? "/dashboard" : "/login"}
-            style={{ color: "white" }}
-          >
+          <NextLink href={jwt ? "/dashboard" : "/login"}>
             {jwt ? `Enter as ${name}` : "Login"}
           </NextLink>
         </Button>
