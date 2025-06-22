@@ -30,6 +30,7 @@ const customConfig = defineConfig({
         _dark: "gray.200",
       },
     },
+    Button: {},
   },
   theme: {
     tokens: {
