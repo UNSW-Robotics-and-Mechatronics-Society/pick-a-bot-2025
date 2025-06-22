@@ -36,7 +36,7 @@ jobs:
             const marker = "<!-- pr-validation-comment -->";
             const commentBody = marker + "\n" + (
               errors.length > 0
-              ? errors.join("\n") + "\n\nPlease update the PR to pass validation."
+              ? errors.join("\n\n") + "\n\nPlease update the PR to pass validation."
               : "✅ All PR validation checks passed."
             );
 
