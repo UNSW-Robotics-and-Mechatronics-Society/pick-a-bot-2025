@@ -50,7 +50,7 @@ export default function LandingPage() {
             <Text>Here&apos;s how it works.</Text>
             <List.Root paddingLeft="4">
               <List.Item>
-                Each player will be given a 100 starting tokens
+                Each player will be given 100 starting tokens
               </List.Item>
               <List.Item>
                 Each round of the finals you will be able to "vote" on a bot
