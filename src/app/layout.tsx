@@ -47,7 +47,7 @@ export default function RootLayout({
       <body>
         <Provider>
           <main>
-            <ArcLogo />
+            {/* <ArcLogo /> */}
             <Box textStyle="body">{children}</Box>
             <Box pos="fixed" top="2" left="2">
               <ColorModeButton borderColor="gray.200" />
