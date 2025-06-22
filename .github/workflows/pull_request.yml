@@ -22,7 +22,7 @@ jobs:
             let errors = [];
 
             if (!titleRegex.test(prTitle)) {
-              errors.push("The PR title should follow this format: `<type> <optional-issue>: <description>`\n\nExamples:\n- `feat: add user login`\n- `fix(auth): handle expired token`");
+              errors.push("❌ The PR title should follow this format: `<type> <optional-issue>: <description>`\n\nExamples:\n- `feat: add user login`\n- `fix(auth): handle expired token`");
             }
 
             if (labels.length === 0) {
