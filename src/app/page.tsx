@@ -10,6 +10,7 @@ import {
   Link,
   Stack,
   Text,
+  Mark,
 } from "@chakra-ui/react";
 import { useLocalStorage } from "usehooks-ts";
 import { PICKABOTS_RULE_BOOK_URL } from "./constants";
@@ -40,8 +41,8 @@ export default function LandingPage() {
             height={130}
           />
           <Heading>PICK-A-BOTS</Heading>
-          <Heading size="sm" color="gray.400">
-            SUMOBOTS 2025
+          <Heading size="sm">
+            <Mark variant="solid">SUMOBOTS 2025</Mark>
           </Heading>
         </Stack>
 
@@ -76,6 +77,8 @@ export default function LandingPage() {
         </Stack>
 
         <Button
+          as={NextLink}
+          href={jwt ? "/dashboard" : "/login"}
           bg="blue.400"
           borderWidth="2px"
           borderColor="blue.600"
@@ -84,11 +87,8 @@ export default function LandingPage() {
           width="5/6"
           textAlign="inherit"
           color="white"
-          asChild
         >
-          <NextLink href={jwt ? "/dashboard" : "/login"}>
-            {jwt ? `Enter as ${name}` : "Login"}
-          </NextLink>
+          {jwt ? `Enter as ${name}` : "Login"}
         </Button>
       </Stack>
     </Center>
