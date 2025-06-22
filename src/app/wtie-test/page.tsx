@@ -59,7 +59,7 @@ export default function Page() {
   if (!mounted) return null; // Avoid initial mismatchs
 
   return (
-    <Stack justifyContent="center">
+    <Stack justifyContent="center" h="dvh">
       <Heading>
         ITS PARTY TIME: for {name} {email}
       </Heading>
