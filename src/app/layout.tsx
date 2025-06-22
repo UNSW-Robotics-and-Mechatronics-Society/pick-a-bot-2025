@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "./Provider";
 import { ColorModeButton } from "@/components/ColorModeButton";
-import { Box, Icon } from "@chakra-ui/react";
-import Image from "next/image";
+import { Box } from "@chakra-ui/react";
+import ArcLogo from "@/components/ArcLogo";
 
 export const metadata: Metadata = {
   title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
@@ -47,14 +47,7 @@ export default function RootLayout({
       <body>
         <Provider>
           <main>
-            <Icon pos="fixed" top="0" right="2" zIndex="overlay">
-              <Image
-                src="/unsw_arc_logo_white.svg"
-                alt="RAMSoc Logo"
-                width={80}
-                height={80}
-              />
-            </Icon>
+            <ArcLogo />
             <Box textStyle="body">{children}</Box>
             <Box pos="fixed" top="2" left="2">
               <ColorModeButton borderColor="gray.200" />
