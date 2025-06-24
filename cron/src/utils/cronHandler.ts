@@ -70,7 +70,7 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 
 		const upserted = await upsertMatches(supabase, matches);
 
-		const updatedIds = upserted.map((m) => m.id);
+		const updatedIds = upserted.map((m: { id: any }) => m.id);
 		await logCronResult(supabase, scheduledTime, 'SUCCESS', {
 			tournamentId: config.tournamentId,
 			supabaseUrl,
