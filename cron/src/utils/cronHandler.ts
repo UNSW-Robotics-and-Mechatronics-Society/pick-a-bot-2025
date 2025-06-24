@@ -2,67 +2,83 @@ import { createClient } from '@supabase/supabase-js';
 import { getChallongeMatches } from './challonge';
 import { loadConfig } from './storage';
 
+const cleanupMatchTable = async (supabase: any, tournamentId: string) => {
+	console.log('[CRON] No matches found. Cleaning up match table.');
+	const { data, error } = await supabase.from('match').delete().neq('tournament_id', tournamentId).select();
+
+	if (error) {
+		console.error('[CRON] Failed to clean up match table:', error.message);
+		return { success: false, deletedCount: 0 };
+	}
+
+	console.log(`[CRON] Successfully erased ${data?.length || 0} matches.`);
+	return { success: true, deletedCount: data?.length || 0 };
+};
+
+const upsertMatches = async (supabase: any, matches: any[]) => {
+	const { data, error } = await supabase.from('match').upsert(matches, { onConflict: 'ordering' }).select();
+
+	if (error) {
+		console.error('[CRON] Failed to upsert matches:', error.message);
+		throw error;
+	}
+
+	console.log(`[CRON] Successfully upserted ${data?.length || 0} matches.`);
+	return data ?? [];
+};
+
+const logCronResult = async (supabase: any, scheduledTime: number, status: string, payload: any) => {
+	const { error } = await supabase.from('cron_logs').insert([
+		{
+			run_at: new Date(scheduledTime).toISOString(),
+			by: 'cron',
+			status,
+			payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
+		},
+	]);
+
+	if (error) {
+		console.error('[CRON] Failed to insert log:', error.message);
+	} else {
+		console.log(`[CRON] Log inserted with status '${status}'`);
+	}
+};
+
 const cronHandler = async (env: Env, scheduledTime: number) => {
 	const config = await loadConfig(env);
 	if (!config.tournamentId) {
-		console.error('[CRON] Tournament ID is not set in the configuration.');
+		console.error('[CRON] Tournament ID is not set.');
 		return;
 	}
+
 	const supabaseUrl = (await env.CONFIG_KV.get('SUPABASE_URL')) || env.DEFAULT_SUPABASE_URL;
 	const supabase = createClient(supabaseUrl, env.SUPABASE_SERVICE_ROLE_KEY);
 
 	try {
-		console.log(`[CRON] Fetching matches for tournament ID: ${config.tournamentId}`);
-		const parsedMatches = await getChallongeMatches(env, config.tournamentId);
+		const matches = await getChallongeMatches(env, config.tournamentId);
 
-		console.log(`[CRON] Updating match table at ${supabaseUrl}`);
-		const { data: upsertedData, error: upsertError } = await supabase
-			.from('match')
-			.upsert(parsedMatches, { onConflict: 'ordering' })
-			.select();
-		if (upsertError) {
-			console.error('[CRON] Failed to upsert matches:', upsertError.message);
-			throw upsertError;
-		} else {
-			console.log(`[CRON] Successfully upserted ${upsertedData?.length || 0} matches.`);
-		}
-
-		console.log(`[CRON] Matches upserted successfully at ${supabaseUrl}`);
-		if (!upsertedData || upsertedData.length === 0) {
-			console.log('[CRON] No matches were updated.');
+		if (!matches || matches.length === 0) {
+			await cleanupMatchTable(supabase, config.tournamentId);
+			await logCronResult(supabase, scheduledTime, 'SUCCESS', {
+				tournamentId: config.tournamentId,
+				supabaseUrl,
+				numUpdatedMatches: 0,
+				UpdatedMatches: [],
+			});
 			return;
 		}
 
-		const updatedMatchIds: number[] = upsertedData.map((match) => match.id);
+		const upserted = await upsertMatches(supabase, matches);
 
-		console.log(`[CRON] Logging ${updatedMatchIds.length} updated matches for tournament ID: ${config.tournamentId}`);
-		const { error: logError } = await supabase.from('cron_logs').insert([
-			{
-				run_at: new Date(scheduledTime).toISOString(),
-				by: 'cron',
-				status: 'SUCCESS',
-				payload: JSON.stringify({
-					tournamentId: config.tournamentId,
-					supabaseUrl: supabaseUrl,
-					numUpdatedMatches: updatedMatchIds.length,
-					UpdatedMatches: updatedMatchIds,
-				}),
-			},
-		]);
-		if (logError) {
-			console.error('[CRON] Failed to insert log:', logError.message);
-		} else {
-			console.log(`[CRON] Log inserted successfully to 'cron_logs' table at ${supabaseUrl}`);
-		}
+		const updatedIds = upserted.map((m) => m.id);
+		await logCronResult(supabase, scheduledTime, 'SUCCESS', {
+			tournamentId: config.tournamentId,
+			supabaseUrl,
+			numUpdatedMatches: updatedIds.length,
+			UpdatedMatches: updatedIds,
+		});
 	} catch (err: any) {
-		await supabase.from('cron_logs').insert([
-			{
-				run_at: new Date(scheduledTime).toISOString(),
-				by: 'cron',
-				status: 'FAILURE',
-				payload: err.message,
-			},
-		]);
+		await logCronResult(supabase, scheduledTime, 'FAILURE', err.message);
 	}
 };
 
