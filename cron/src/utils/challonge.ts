@@ -9,9 +9,10 @@ interface ParsedMatch {
 	state: string;
 	start_time: string | null;
 	ordering: number;
+	tournament_id: string;
 }
 
-export function parseChallongeMatches(matches: any[], participants: any[]): ParsedMatch[] {
+export function parseChallongeMatches(tournamentId: string, matches: any[], participants: any[]): ParsedMatch[] {
 	const getParticipantName = (id: string | null): string => {
 		if (!id) {
 			return 'unknown';
@@ -47,6 +48,7 @@ export function parseChallongeMatches(matches: any[], participants: any[]): Pars
 				state: attributes.state,
 				start_time: attributes.timestamps?.startedAt || null,
 				ordering: attributes.suggestedPlayOrder,
+				tournament_id: tournamentId,
 			};
 			return parsedMatch;
 		})
@@ -72,6 +74,6 @@ export const getChallongeMatches = async (env: Env, tournamentId: string) => {
 	const matches = data.data;
 	const participants = data.included;
 
-	const parsed = parseChallongeMatches(matches, participants);
+	const parsed = parseChallongeMatches(tournamentId, matches, participants);
 	return parsed;
 };
