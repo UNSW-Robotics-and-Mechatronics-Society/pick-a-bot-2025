@@ -23,9 +23,6 @@ root.get('/', (c) => {
 
 root.get('/config', async (c) => {
 	const config = await loadConfig(c.env);
-	if (!config?.tournamentId) {
-		return c.text('Tournament ID missing', 400);
-	}
 
 	const props = {
 		title: 'PICK-A-BOTS | Cron Admin - Config',
