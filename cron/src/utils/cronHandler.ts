@@ -1,8 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { getChallongeMatches } from './challonge';
 import { loadConfig } from './storage';
 
-const cleanupMatchTable = async (supabase: any, tournamentId: string) => {
+const cleanupMatchTable = async (supabase: SupabaseClient, tournamentId: string) => {
 	console.log('[CRON] No matches found. Cleaning up match table.');
 	const { data, error } = await supabase.from('match').delete().neq('tournament_id', tournamentId).select();
 
@@ -15,7 +15,7 @@ const cleanupMatchTable = async (supabase: any, tournamentId: string) => {
 	return { success: true, deletedCount: data?.length || 0 };
 };
 
-const upsertMatches = async (supabase: any, matches: any[]) => {
+const upsertMatches = async (supabase: SupabaseClient, matches: any[]) => {
 	const { data, error } = await supabase.from('match').upsert(matches, { onConflict: 'ordering' }).select();
 
 	if (error) {
@@ -27,11 +27,11 @@ const upsertMatches = async (supabase: any, matches: any[]) => {
 	return data ?? [];
 };
 
-const logCronResult = async (supabase: any, scheduledTime: number, status: string, payload: any) => {
+const logCronResult = async (by: string, supabase: SupabaseClient, scheduledTime: number, status: string, payload: any) => {
 	const { error } = await supabase.from('cron_logs').insert([
 		{
 			run_at: new Date(scheduledTime).toISOString(),
-			by: 'cron',
+			by,
 			status,
 			payload: typeof payload === 'string' ? payload : JSON.stringify(payload),
 		},
@@ -50,6 +50,7 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 		console.error('[CRON] Tournament ID is not set.');
 		return;
 	}
+	const executer = env.JOB_TRIGGER === 'local' ? 'manual' : 'cron';
 
 	const supabaseUrl = (await env.CONFIG_KV.get('SUPABASE_URL')) || env.DEFAULT_SUPABASE_URL;
 	const supabase = createClient(supabaseUrl, env.SUPABASE_SERVICE_ROLE_KEY);
@@ -59,26 +60,28 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 
 		if (!matches || matches.length === 0) {
 			await cleanupMatchTable(supabase, config.tournamentId);
-			await logCronResult(supabase, scheduledTime, 'SUCCESS', {
+			await logCronResult(executer, supabase, scheduledTime, 'SUCCESS', {
 				tournamentId: config.tournamentId,
 				supabaseUrl,
-				numUpdatedMatches: 0,
-				UpdatedMatches: [],
+				numMatches: 0,
+				matches: [],
+				action: 'cleanup',
 			});
 			return;
 		}
 
 		const upserted = await upsertMatches(supabase, matches);
 
-		const updatedIds = upserted.map((m: { id: any }) => m.id);
-		await logCronResult(supabase, scheduledTime, 'SUCCESS', {
+		const matchIds = upserted.map((m: { id: any }) => m.id);
+		await logCronResult(executer, supabase, scheduledTime, 'SUCCESS', {
 			tournamentId: config.tournamentId,
 			supabaseUrl,
-			numUpdatedMatches: updatedIds.length,
-			UpdatedMatches: updatedIds,
+			numMatches: matchIds.length,
+			matches: matchIds,
+			action: 'upsert',
 		});
 	} catch (err: any) {
-		await logCronResult(supabase, scheduledTime, 'FAILURE', err.message);
+		await logCronResult(executer, supabase, scheduledTime, 'FAILURE', err.message);
 	}
 };
 
