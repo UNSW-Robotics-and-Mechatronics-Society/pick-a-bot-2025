@@ -4,6 +4,8 @@ compatibility_date = "2025-06-23"
 
 workers_dev = false
 
+assets = { directory = "public" }
+
 # Production environment (default)
 [triggers]
 crons = ["*/1 * * * *"]
