@@ -1,0 +1,24 @@
+name = "pick-a-bots-2025-cron"
+main = "src/index.ts"
+compatibility_date = "2025-06-23"
+
+workers_dev = false
+
+# Production environment (default)
+[triggers]
+crons = ["*/1 * * * *"]
+
+# Development environment
+[env.dev]
+name = "pick-a-bots-2025-cron-dev"
+
+[env.dev.triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "CONFIG_KV"
+id = "fa810c3ad25e43cb9f0ead7f87c13205"
+
+[[env.dev.kv_namespaces]]
+binding = "CONFIG_KV"
+id = "917a9563b08d456ba88aa27a6e81fa61"
