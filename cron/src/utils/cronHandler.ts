@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getChallongeMatches } from './challonge';
 import { loadConfig } from './storage';
 
 const cronHandler = async (env: Env, scheduledTime: number) => {
@@ -11,10 +12,31 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 	const supabase = createClient(supabaseUrl, env.SUPABASE_SERVICE_ROLE_KEY);
 
 	try {
-		// TODO: add cron logic here...
-		const updatedMatcheIds: number[] = []; // TODO: Replace with actual logic to fetch updated matches
-		console.log(`[CRON] Running cron job for tournament ID: ${config.tournamentId}`);
-		const { error } = await supabase.from('cron_logs').insert([
+		console.log(`[CRON] Fetching matches for tournament ID: ${config.tournamentId}`);
+		const parsedMatches = await getChallongeMatches(env, config.tournamentId);
+
+		console.log(`[CRON] Updating match table at ${supabaseUrl}`);
+		const { data: upsertedData, error: upsertError } = await supabase
+			.from('match')
+			.upsert(parsedMatches, { onConflict: 'ordering' })
+			.select();
+		if (upsertError) {
+			console.error('[CRON] Failed to upsert matches:', upsertError.message);
+			throw upsertError;
+		} else {
+			console.log(`[CRON] Successfully upserted ${upsertedData?.length || 0} matches.`);
+		}
+
+		console.log(`[CRON] Matches upserted successfully at ${supabaseUrl}`);
+		if (!upsertedData || upsertedData.length === 0) {
+			console.log('[CRON] No matches were updated.');
+			return;
+		}
+
+		const updatedMatchIds: number[] = upsertedData.map((match) => match.id);
+
+		console.log(`[CRON] Logging ${updatedMatchIds.length} updated matches for tournament ID: ${config.tournamentId}`);
+		const { error: logError } = await supabase.from('cron_logs').insert([
 			{
 				run_at: new Date(scheduledTime).toISOString(),
 				by: 'cron',
@@ -22,13 +44,13 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 				payload: JSON.stringify({
 					tournamentId: config.tournamentId,
 					supabaseUrl: supabaseUrl,
-					numUpdatedMatches: updatedMatcheIds.length,
-					UpdatedMatches: updatedMatcheIds,
+					numUpdatedMatches: updatedMatchIds.length,
+					UpdatedMatches: updatedMatchIds,
 				}),
 			},
 		]);
-		if (error) {
-			console.error('[CRON] Failed to insert log:', error.message);
+		if (logError) {
+			console.error('[CRON] Failed to insert log:', logError.message);
 		} else {
 			console.log(`[CRON] Log inserted successfully to 'cron_logs' table at ${supabaseUrl}`);
 		}
