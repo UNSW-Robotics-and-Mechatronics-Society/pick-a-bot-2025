@@ -63,9 +63,9 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 			await logCronResult(executer, supabase, scheduledTime, 'SUCCESS', {
 				tournamentId: config.tournamentId,
 				supabaseUrl,
+				action: 'cleanup',
 				numMatches: 0,
 				matches: [],
-				action: 'cleanup',
 			});
 			return;
 		}
@@ -76,9 +76,9 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 		await logCronResult(executer, supabase, scheduledTime, 'SUCCESS', {
 			tournamentId: config.tournamentId,
 			supabaseUrl,
+			action: 'upsert',
 			numMatches: matchIds.length,
 			matches: matchIds,
-			action: 'upsert',
 		});
 	} catch (err: any) {
 		await logCronResult(executer, supabase, scheduledTime, 'FAILURE', err.message);
