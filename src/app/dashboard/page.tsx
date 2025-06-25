@@ -42,7 +42,7 @@ export default function DashboardPage() {
                     rightBorderColor="red.500"
                     leftBorderColor="blue.500"
                 ></Match>
-                <Heading>Upcomming Round</Heading>
+                <Heading>Upcoming Round</Heading>
                 <Match 
                     leftLabel="Bot3" 
                     rightLabel="Bot4"
