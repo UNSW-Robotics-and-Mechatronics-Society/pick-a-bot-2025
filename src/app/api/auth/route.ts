@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 import { SignJWT } from "jose";
 import { type NextRequest } from "next/server";
 
-
 export async function POST(request: NextRequest) {
 
     const secret = new TextEncoder().encode('secret')
@@ -16,7 +15,7 @@ export async function POST(request: NextRequest) {
     if (!dbResp.data) {
         dbResp = await supabase
             .from('user')
-            .insert({ name, email })
+            .insert({ name, email, tokens: 100 }) //Initialise points to 100
             .select().single()
     }
 
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
         .setIssuedAt()
         .setExpirationTime('1y')
         .sign(secret)
-
     return Response.json({
         jwt,
         name,
