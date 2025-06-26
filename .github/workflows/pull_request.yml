@@ -2,7 +2,20 @@ name: PR Validation
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize, labeled, unlabeled, assigned, unassigned]
+    types:
+      [
+        opened,
+        edited,
+        reopened,
+        synchronize,
+        labeled,
+        unlabeled,
+        assigned,
+        unassigned,
+      ]
+
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   validate-pr:
