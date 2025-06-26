@@ -3,7 +3,7 @@ import { SignJWT } from "jose";
 import { type NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-
+  
     const secret = new TextEncoder().encode('secret')
     const body = await request.json();
 
@@ -33,4 +33,4 @@ export async function POST(request: NextRequest) {
     });
 }
 
-export const runtime = 'edge';
+export const runtime = "edge";
