@@ -9,11 +9,13 @@ export async function GET(request: NextRequest) {
       .from('user')
       .select('name, tokens')
       .order('tokens', { ascending: false });
-    console.log(dbResp);
+
     if (!dbResp.data) {
       throw new Error('No data found');
     } 
+
     console.log(dbResp);
+
     return Response.json({
       dbResp,
     });

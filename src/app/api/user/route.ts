@@ -8,6 +8,7 @@ const supabase = createClient(process.env.DB_URL as string, process.env.DB_SECRE
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization');
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new Error('Authorisation not found');
     }
@@ -17,15 +18,18 @@ export async function GET(request: NextRequest) {
     const { payload } = await jwtVerify(jwt, secret, {
       algorithms: ['HS256'] 
     });
+
     const userName = payload.name;
     const dbResp = await supabase
       .from('user')
       .select(' name, tokens ')
       .eq('name', userName)
       .single()
+
     if (!dbResp.data) {
       throw new Error('No data found');
     } 
+    
     console.log(dbResp.data.name, dbResp.data.tokens);
     return Response.json({
       name: dbResp.data.name,
