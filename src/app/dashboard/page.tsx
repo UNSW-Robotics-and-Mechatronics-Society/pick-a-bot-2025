@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Match from "../../components/ui/match";
 import Image from "next/image";
 import { FaLock } from "react-icons/fa";
+import { useLocalStorage } from "usehooks-ts";
 import { 
     Box,
     Center,
@@ -15,13 +16,14 @@ import {
 
 export default function DashboardPage() {
   const [selected, setSelected] = useState("");
+  const [name, setName] = useLocalStorage('name', '');
 
   return (
     <Box padding="4" bg="gray.900" color="white" h="dvh" w="dvw" fontSize="md">
         
         <Center flexDirection="column" h="90%" w="100%" p="4"> 
             <Box w="100%" display="flex" justifyContent="space-between" mb="4">
-                <Heading fontWeight="bold">Welcome Rambo</Heading>
+                <Heading fontWeight="bold">Welcome {name}</Heading>
                 <Box display={"flex"} flexDir={"row"} alignItems="center">
                     <Heading fontWeight="bold" color="orange.500" mr="2">600</Heading>
                     <Image 
