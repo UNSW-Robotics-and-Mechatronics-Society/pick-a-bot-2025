@@ -30,9 +30,11 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+        working-directory: database
 
       - name: Run Drizzle migrate
         run: bunx drizzle-kit migrate --config database/drizzle.config.ts
+        working-directory: database
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
@@ -40,6 +42,6 @@ jobs:
         run: |
           sudo apt-get install -y postgresql-client
           echo "$DATABASE_URL" > db.url
-          psql "$(cat db.url)" -f supabase/policies.sql
+          psql "$(cat db.url)" -f database/supabase/policies.sql
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
