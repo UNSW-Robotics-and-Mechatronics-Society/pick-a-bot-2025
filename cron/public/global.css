@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Anta&family=Audiowide&display=swap');
+
 body {
-	font-family: sans-serif;
+	font-family: 'Anta', sans-serif;
 	padding: 2rem;
 	max-width: 600px;
-	background-color: #f0f0f0;
+	background-color: #111111;
+	color: #ffffff;
 }
