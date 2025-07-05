@@ -42,8 +42,10 @@ This repo contains everything needed to power the platform - from the frontend U
    ```txt
    # For local development
    DB_URL=http://localhost:8000
-   DB_SECRET_KEY=your-own-anon-key
+   DB_SECRET_KEY=your-local-anon-key
    ```
+
+   Your local supabase anon key can be found in `database/docker/.env`.
 
 3. **Run Development Server**
 
@@ -118,17 +120,46 @@ This local database setup ensures your app is fully functional offline, while mi
 
 #### Run Cron Locally
 
-1. Open a new terminal:
+1. Install Dependencies
+
+   In the `cron` directory, run:
 
    ```bash
    cd cron
-   pnpm install
-   pnpm run dev
+   bun install
+   ```
+
+2. Setup Environment Variables
+
+   Copy `.dev.vars.example` -> `.dev.vars` and update all secrets.
+
+   Especially:
+
+   ```txt
+   ENVIRONMENT=local
+   JOB_TRIGGER=local
+
+   CHALLONGE_API_KEY=your-challonge-api-key
+   # Get your Challonge API key from https://challonge.com/settings/account
+
+   DEFAULT_SUPABASE_URL=http://localhost:8000
+   SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
+   # Check database/docker/.env for your service role key
+
+   ADMIN_API_KEY=some-secret-key
+   ```
+
+   Your local service role key can be found in `database/docker/.env`.
+
+3. Run the Local Cron Worker:
+
+   ```bash
+   bun run dev
    ```
 
    This starts the local Cloudflare Worker emulation for cron jobs. You can view the local dashboard at <http://localhost:8787>.
 
-2. Open a new terminal and trigger it manually:
+4. Open a new terminal and trigger it manually:
 
    ```bash
    curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"
