@@ -28,7 +28,7 @@ const upsertMatches = async (supabase: SupabaseClient, matches: any[]) => {
 };
 
 const logCronResult = async (by: string, supabase: SupabaseClient, scheduledTime: number, status: string, payload: any) => {
-	const { error } = await supabase.from('cron_logs').insert([
+	const { error } = await supabase.from('cron_log').insert([
 		{
 			run_at: new Date(scheduledTime).toISOString(),
 			by,
