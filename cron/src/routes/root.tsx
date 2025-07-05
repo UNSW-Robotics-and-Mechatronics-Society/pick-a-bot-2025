@@ -8,7 +8,9 @@ export const app = new Hono<{ Bindings: Env }>();
 
 const root = new Hono<{ Bindings: Env }>();
 
-root.get('/', (c) => {
+root.get('/', async (c) => {
+	const config = await loadConfig(c.env);
+
 	const props = {
 		title: 'PICK-A-BOTS | Cron Admin',
 		description: 'Admin dashboard for Pick-a-Bot cron jobs',
@@ -16,7 +18,7 @@ root.get('/', (c) => {
 
 	return c.html(
 		<Layout {...props}>
-			<Dashboard />
+			<Dashboard environment={config.environment} />
 		</Layout>
 	);
 });
@@ -31,7 +33,7 @@ root.get('/config', async (c) => {
 
 	return c.html(
 		<Layout {...props}>
-			<ConfigPanel tournamentId={config.tournamentId} supabaseUrl={config.supabaseUrl} />
+			<ConfigPanel tournamentId={config.tournamentId} supabaseUrl={config.supabaseUrl} environment={config.environment} />
 		</Layout>
 	);
 });
