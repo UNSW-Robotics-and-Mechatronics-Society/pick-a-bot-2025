@@ -32,8 +32,8 @@ jobs:
         run: bun install
         working-directory: database
 
-      - name: Run Drizzle migrate
-        run: bunx drizzle-kit migrate --config ./drizzle.config.ts
+      - name: Run Drizzle push
+        run: bunx drizzle-kit push --config ./drizzle.config.ts
         working-directory: database
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
