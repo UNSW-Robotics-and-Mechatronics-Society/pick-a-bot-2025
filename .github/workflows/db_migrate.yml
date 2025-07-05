@@ -8,12 +8,6 @@ on:
     paths:
       - "database/drizzle/**"
       - "database/supabase/policies.sql"
-  pull_request: # for testing only
-    branches:
-      - "**"
-    paths:
-      - "database/drizzle/**"
-      - "database/supabase/policies.sql"
 
 jobs:
   migrate-db:
