@@ -8,13 +8,6 @@ on:
     paths:
       - "drizzle/**"
       - "supabase/policies.sql"
-  pull_request:
-    types: [opened, synchronize]
-    branches:
-      - "**"
-    paths:
-      - "drizzle/**"
-      - "supabase/policies.sql"
 
 jobs:
   migrate-db:
