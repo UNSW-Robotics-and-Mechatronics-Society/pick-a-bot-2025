@@ -10,11 +10,13 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.5.2",
-		"wrangler": "^4.20.5"
+		"wrangler": "^4.20.5",
+		"@types/bun": "latest"
 	},
-	"packageManager": "pnpm@10.12.2+sha512.a32540185b964ee30bb4e979e405adc6af59226b438ee4cc19f9e8773667a66d302f5bfee60a39d3cac69e35e4b96e708a71dd002b7e9359c4112a1722ac323f",
 	"dependencies": {
 		"@supabase/supabase-js": "^2.50.0",
 		"hono": "^4.8.2"
-	}
+	},
+	"module": "src/index.ts",
+	"type": "module"
 }
