@@ -25,12 +25,12 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: 🧠 Run Drizzle migrate
+      - name: Run Drizzle migrate
         run: npx drizzle-kit migrate --config ./drizzle.config.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: ⚙️ Apply Supabase RLS & Realtime Policies
+      - name: Apply Supabase RLS & Realtime Policies
         run: |
           sudo apt-get install -y postgresql-client
           echo "$DATABASE_URL" > db.url
