@@ -8,7 +8,7 @@ interface ConfigPanelProps {
 
 const ConfigPanel: FC<ConfigPanelProps> = ({ tournamentId, supabaseUrl }) => {
 	return (
-		<main style="padding: 2rem; font-family: sans-serif;">
+		<main style="padding: 2rem;">
 			<a href="/" style="margin-bottom: 1rem; display: inline-block;">
 				← Back
 			</a>
@@ -24,17 +24,12 @@ const ConfigPanel: FC<ConfigPanelProps> = ({ tournamentId, supabaseUrl }) => {
 					<input id="tournamentId" name="tournamentId" value={tournamentId} required style="width: 100%;" />
 				</div>
 
-				<div>
-					<label htmlFor="supabaseUrl">
-						<strong>Supabase URL:</strong>
-					</label>
-					<input id="supabaseUrl" name="supabaseUrl" value={supabaseUrl} required style="width: 100%;" />
-				</div>
-
 				<button type="submit">Save Config</button>
 			</form>
 			<h2>Current Config</h2>
-			<pre>{JSON.stringify({ tournamentId, supabaseUrl }, null, 2)}</pre>
+			<div style="padding: 1rem; border-radius: 4px; overflow: auto; background-color: #191919;">
+				<pre>{JSON.stringify({ tournamentId, supabaseUrl }, null, 2)}</pre>
+			</div>
 		</main>
 	);
 };
