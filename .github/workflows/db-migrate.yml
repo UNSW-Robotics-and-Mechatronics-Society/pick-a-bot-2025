@@ -9,6 +9,7 @@ on:
       - "drizzle/**"
       - "supabase/policies.sql"
   pull_request:
+    types: [opened, synchronize]
     branches:
       - "**"
     paths:
