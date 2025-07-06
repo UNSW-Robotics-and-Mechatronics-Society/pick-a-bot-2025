@@ -102,6 +102,7 @@ This local database setup ensures your app is fully functional offline, while mi
    ```bash
    cd database
    bun run db:push
+   psql <your-local-postgres-url> -f supabase/policies.sql
    ```
 
    This applies the latest database schema using Drizzle ORM.
