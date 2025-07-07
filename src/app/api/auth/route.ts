@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     if (!dbResp.data) {
         dbResp = await supabase
             .from('user')
-            .insert({ name, email, tokens: 100 }) //Initialise points to 100
+            .insert({ name, email, tokens: 100 })
             .select().single()
     }
 
