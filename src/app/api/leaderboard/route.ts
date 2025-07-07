@@ -23,3 +23,5 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching leaderboard:', err);
   }
 }
+
+export const runtime = 'edge'

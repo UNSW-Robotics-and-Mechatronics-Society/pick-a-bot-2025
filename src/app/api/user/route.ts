@@ -39,3 +39,5 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching user:', err);
   }
 }
+
+export const runtime = 'edge'
