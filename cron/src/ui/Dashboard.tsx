@@ -1,7 +1,7 @@
 import { FC } from 'hono/jsx';
 import { CRON_URLS } from '../constants';
 
-type Environment = 'local' | 'dev' | 'prod';
+export type Environment = 'local' | 'dev' | 'prod';
 
 interface DashboardProps {
 	environment: Environment;
