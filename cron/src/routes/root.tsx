@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import ConfigPanel from '../ui/ConfigPanel';
-import Dashboard from '../ui/Dashboard';
+import Dashboard, { Environment } from '../ui/Dashboard';
 import Layout from '../ui/Layout';
 import { loadConfig } from '../utils/storage';
 
@@ -18,7 +18,7 @@ root.get('/', async (c) => {
 
 	return c.html(
 		<Layout {...props}>
-			<Dashboard environment={config.environment} />
+			<Dashboard environment={config.environment as Environment} />
 		</Layout>
 	);
 });
