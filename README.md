@@ -44,7 +44,7 @@ This repo contains everything needed to power the platform - from the frontend U
    DB_SECRET_KEY=your-local-anon-key
    ```
 
-   Your local supabase anon key can be found in `database/docker/.env`.
+   Your local supabase anon key can be found in `docker/.env`.
 
 3. **Run Development Server**
 
@@ -79,7 +79,7 @@ This local database setup ensures your app is fully functional offline, while mi
    Ensure Docker app is running, then in your project root:
 
    ```bash
-    cd database/docker
+    cd docker
     docker compose up -d
    ```
 
@@ -144,12 +144,12 @@ This local database setup ensures your app is fully functional offline, while mi
 
    DEFAULT_SUPABASE_URL=http://localhost:8000
    SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
-   # Check database/docker/.env for your service role key
+   # Check docker/.env for your service role key
 
    ADMIN_API_KEY=some-secret-key
    ```
 
-   Your local service role key can be found in `database/docker/.env`.
+   Your local service role key can be found in `docker/.env`.
 
 3. Run the Local Cron Worker:
 
