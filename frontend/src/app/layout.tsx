@@ -1,21 +1,39 @@
+import { ColorModeButton } from "@/components/ColorModeButton";
+import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Provider from "./Provider";
 
 export const metadata: Metadata = {
-  title: "Pick a Bot",
-  description: "RAMSOC Pick a Bot 2025",
+  title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+  description:
+    "Vote for your champion and climb the leaderboard as Sumobots battle it out in real time!",
+  openGraph: {
+    title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+    description:
+      "Vote for your champion and climb the leaderboard as Sumobots battle it out in real time!",
+    url: "https://sumobots.ramsocunsw.org/2025/pickabots",
+    siteName: "RAMSoc (SUMOBOTS) Pick-A-BOTS 2025",
+    images: [
+      {
+        url: "/og-pickabot.png", // TODO: add og image
+        width: 1200,
+        height: 630,
+        alt: "Pick-A-BOTS - Sumobots 2025",
+      },
+    ],
+    locale: "en_AU",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+    description:
+      "Place your bets on Sumobot matches and earn points as they fight it out!",
+    images: ["/og-pickabot.png"], // TODO: add og image
+    site: "@ramsoc_unsw",
+    creator: "@ramsoc_unsw",
+  },
 };
 
 export default function RootLayout({
@@ -25,12 +43,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          {children}
-        </Providers>
+      <body>
+        <Provider>
+          <main>
+            {/* <ArcLogo /> */}
+            <Box textStyle="body">{children}</Box>
+            <Box pos="fixed" top="2" left="2">
+              <ColorModeButton borderColor="gray.200" />
+            </Box>
+          </main>
+        </Provider>
       </body>
     </html>
   );
