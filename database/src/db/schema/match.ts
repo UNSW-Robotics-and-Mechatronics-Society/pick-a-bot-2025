@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   pgTable,
   smallint,
@@ -22,4 +23,5 @@ export const match = pgTable("match", {
   ordering: integer("ordering").notNull().unique(),
   tournamentId: text("tournament_id").notNull(),
   updatedTime: timestamp("updated_time", { withTimezone: true }).defaultNow(),
+  isFinal: boolean("is_final").default(false).notNull(),
 });
