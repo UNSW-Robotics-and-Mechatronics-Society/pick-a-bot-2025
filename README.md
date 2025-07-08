@@ -18,6 +18,7 @@ This repo contains everything needed to power the platform - from the frontend U
 - [Docker](https://docs.docker.com/get-docker/)
 - [Node.js](https://nodejs.org/en/download/) (v18+ recommended)
 - [bun](https://bun.sh/docs/installation) (for running cron jobs and database migrations)
+- [psql](https://www.postgresql.org/docs/current/app-psql.html) (PostgreSQL client for running migrations)
 
 ## Getting Started
 
