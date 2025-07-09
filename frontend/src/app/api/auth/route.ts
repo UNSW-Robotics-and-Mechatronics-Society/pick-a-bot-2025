@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(
         process.env.DB_URL as string, 
         process.env.DB_SECRET_KEY as string
-    )
+    );
 
     let dbResp = await supabase
             .from('user')

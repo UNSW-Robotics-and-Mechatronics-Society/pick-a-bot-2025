@@ -1,0 +1,22 @@
+{
+	"name": "pick-a-bots-cron",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev --env dev --test-scheduled",
+		"start": "wrangler dev --env dev --test-scheduled",
+		"cf-typegen": "wrangler types"
+	},
+	"devDependencies": {
+		"typescript": "^5.5.2",
+		"wrangler": "^4.20.5",
+		"@types/bun": "latest"
+	},
+	"dependencies": {
+		"@supabase/supabase-js": "^2.50.0",
+		"hono": "^4.8.2"
+	},
+	"module": "src/index.ts",
+	"type": "module"
+}

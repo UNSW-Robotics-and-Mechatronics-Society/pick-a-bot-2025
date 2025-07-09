@@ -1,0 +1,10 @@
+ENVIRONMENT=local
+JOB_TRIGGER=local
+
+CHALLONGE_API_KEY=your-challonge-api-key
+
+DEFAULT_SUPABASE_URL=http://localhost:8000
+SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
+# Check database/docker/.env for your service role key
+
+ADMIN_API_KEY=some-secret-key
