@@ -1,67 +1,178 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`c3`](https://developers.cloudflare.com/pages/get-started/c3).
+# Pick-a-Bots 2025
+
+**Pick-a-Bots** is an interactive tournament prediction platform built for RAMSOC’s annual Sumo Bot competition.
+Participants can place predictions on ongoing matches, earn points, and track results in real time.
+
+This repo contains everything needed to power the platform - from the frontend UI to the backend database and automated match updates.
+
+## Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/) with [Tailwind CSS](https://tailwindcss.com/), [Chakra UI](https://chakra-ui.com/), and [TanStack Query](https://tanstack.com/query/latest).
+- **Backend**: Uses Next.js API routes for server-side logic.
+- **Cron Jobs**: [Cloudflare Workers](https://developers.cloudflare.com/workers/) for scheduled tasks.
+- **Database**: [Supabase](https://supabase.com/) provides the database, authentication, and real-time features. The database schema is managed using [Drizzle ORM](https://orm.drizzle.team/) and supports local development via Docker.
+- **Deployment**: [Cloudflare Pages](https://pages.cloudflare.com/) for hosting the frontend and backend. [Cloudflare Workers](https://developers.cloudflare.com/workers/) for cron jobs.
+
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Node.js](https://nodejs.org/en/download/) (v18+ recommended)
+- [bun](https://bun.sh/docs/installation) (for running cron jobs and database migrations)
+- [psql](https://www.postgresql.org/docs/current/app-psql.html) (PostgreSQL client for running migrations)
 
 ## Getting Started
 
-First, run the development server:
+### Frontend (and Backend) Setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Install Dependencies**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   In the project root, run:
 
-## Cloudflare integration
+   ```bash
+   cd frontend
+   npm run install
+   ```
 
-Besides the `dev` script mentioned above `c3` has added a few extra scripts that allow you to integrate the application with the [Cloudflare Pages](https://pages.cloudflare.com/) environment, these are:
-  - `pages:build` to build the application for Pages using the [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-on-pages) CLI
-  - `preview` to locally preview your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
-  - `deploy` to deploy your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
+2. **Setup Environment Variables**
 
-> __Note:__ while the `dev` script is optimal for local development you should preview your Pages application as well (periodically or before deployments) in order to make sure that it can properly work in the Pages environment (for more details see the [`@cloudflare/next-on-pages` recommended workflow](https://github.com/cloudflare/next-on-pages/blob/main/internal-packages/next-dev/README.md#recommended-development-workflow))
+   Copy `.env.example` -> `.env` and update all secrets before using in production.
 
-### Bindings
+   Especially:
 
-Cloudflare [Bindings](https://developers.cloudflare.com/pages/functions/bindings/) are what allows you to interact with resources available in the Cloudflare Platform.
+   ```txt
+   # For local development
+   DB_URL=http://localhost:8000
+   DB_SECRET_KEY=your-local-anon-key
+   ```
 
-You can use bindings during development, when previewing locally your application and of course in the deployed application:
+   Your local supabase anon key can be found in `docker/.env`.
 
-- To use bindings in dev mode you need to define them in the `next.config.js` file under `setupDevBindings`, this mode uses the `next-dev` `@cloudflare/next-on-pages` submodule. For more details see its [documentation](https://github.com/cloudflare/next-on-pages/blob/05b6256/internal-packages/next-dev/README.md).
+3. **Run Development Server**
 
-- To use bindings in the preview mode you need to add them to the `pages:preview` script accordingly to the `wrangler pages dev` command. For more details see its [documentation](https://developers.cloudflare.com/workers/wrangler/commands/#dev-1) or the [Pages Bindings documentation](https://developers.cloudflare.com/pages/functions/bindings/).
+   ```bash
+   npm run dev
+   ```
 
-- To use bindings in the deployed application you will need to configure them in the Cloudflare [dashboard](https://dash.cloudflare.com/). For more details see the  [Pages Bindings documentation](https://developers.cloudflare.com/pages/functions/bindings/).
+   This spins up the Next.js development server. Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-#### KV Example
+### Local Database Setup
 
-`c3` has added for you an example showing how you can use a KV binding.
+This local database setup ensures your app is fully functional offline, while mimicking your production Supabase project as closely as possible. Allows you to develop and test features without needing a live Supabase instance.
 
-In order to enable the example:
-- Search for javascript/typescript lines containing the following comment:
-  ```ts
-  // KV Example:
-  ```
-  and uncomment the commented lines below it (also uncomment the relevant imports).
-- In the `wrangler.jsonc` file add the following configuration line:
-  ```
-  "kv_namespaces": [{ "binding": "MY_KV_NAMESPACE", "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }],
-  ```
-- If you're using TypeScript run the `cf-typegen` script to update the `env.d.ts` file:
-  ```bash
-  npm run cf-typegen
-  # or
-  yarn cf-typegen
-  # or
-  pnpm cf-typegen
-  # or
-  bun cf-typegen
-  ```
+1. **Update Your Environment Variables**
 
-After doing this you can run the `dev` or `preview` script and visit the `/api/hello` route to see the example in action.
+   Copy `.env.example` -> `.env` and update all secrets before using in production.
 
-Finally, if you also want to see the example work in the deployed application make sure to add a `MY_KV_NAMESPACE` binding to your Pages application in its [dashboard kv bindings settings section](https://dash.cloudflare.com/?to=/:account/pages/view/:pages-project/settings/functions#kv_namespace_bindings_section). After having configured it make sure to re-deploy your application.
+   Especially:
+
+   ```txt
+   POSTGRES_PASSWORD=your-own-password
+   JWT_SECRET=your-own-long-secret-32+chars
+   ANON_KEY=generate-your-own
+   SERVICE_ROLE_KEY=generate-your-own
+   ```
+
+   Can generate your anon and service role keys here if you like:
+   <https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys>
+
+2. **Start Supabase Locally**
+
+   Ensure Docker app is running, then in your project root:
+
+   ```bash
+    cd docker
+    docker compose up -d
+   ```
+
+   This may run for a few minutes. This starts:
+
+   - PostgreSQL
+   - Supabase Auth, API, Realtime
+   - Supabase Studio Dashboard
+
+   You can check the status of your containers with:
+
+   ```bash
+   docker compose ps
+   ```
+
+3. **Run Database Migrations**
+
+   Right now, your local database is not in sync with the latest schema. From the project root, run:
+
+   ```bash
+   cd database
+   bun run db:push
+   psql <your-local-postgres-url> -f supabase/policies.sql
+   ```
+
+   This applies the latest database schema using Drizzle ORM.
+
+4. **Access Supabase Studio**
+
+   Open: <http://localhost:8000>
+
+   Login with:
+
+   - Username: `supabase`
+   - Password: `this_password_is_insecure_and_should_be_updated`
+
+### Cloudflare Cron Service (Local & Live)
+
+#### Run Cron Locally
+
+1. Install Dependencies
+
+   In the `cron` directory, run:
+
+   ```bash
+   cd cron
+   bun install
+   ```
+
+2. Setup Environment Variables
+
+   Copy `.dev.vars.example` -> `.dev.vars` and update all secrets.
+
+   Especially:
+
+   ```txt
+   ENVIRONMENT=local
+   JOB_TRIGGER=local
+
+   CHALLONGE_API_KEY=your-challonge-api-key
+   # Get your Challonge API key from https://challonge.com/settings/account
+
+   DEFAULT_SUPABASE_URL=http://localhost:8000
+   SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
+   # Check docker/.env for your service role key
+
+   ADMIN_API_KEY=some-secret-key
+   ```
+
+   Your local service role key can be found in `docker/.env`.
+
+3. Run the Local Cron Worker:
+
+   ```bash
+   bun run dev
+   ```
+
+   This starts the local Cloudflare Worker emulation for cron jobs. You can view the local dashboard at <http://localhost:8787>.
+
+4. Open a new terminal and trigger it manually:
+
+   ```bash
+   curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"
+   ```
+
+   This simulates a cron job hitting your local Worker endpoint.
+
+#### Configure Tournaments (Admin UI)
+
+The live development admin dashboard to manage tournaments (e.g. update tournament_id, set cron frequency) is available at the [DEV Pick-a-Bots 2025 Cron Admin Dashboard](https://pick-a-bots-2025-cron-dev.ramsocunsw.workers.dev).
+
+- Updates run every 5 minutes
+- Designed to auto-sync tournament state with dev Supabase
+
+> Note: The production admin dashboard will be available at a later date to save quota costs.
