@@ -1,7 +1,7 @@
+import { tokenAuth } from '@/middleware/apiAuth';
+import PATH from '@/path';
+import { saveConfig } from '@/services/kv-storage';
 import { Hono } from 'hono';
-import { tokenAuth } from '../../middleware/apiAuth';
-import PATH from '../path';
-import { saveConfig } from '../utils/storage';
 
 const api = new Hono<{ Bindings: Env }>();
 

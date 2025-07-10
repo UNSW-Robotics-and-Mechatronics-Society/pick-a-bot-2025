@@ -1,8 +1,8 @@
+import { loadConfig } from '@/services/kv-storage';
+import ConfigPanel from '@/ui/ConfigPanel';
+import Dashboard, { Environment } from '@/ui/Dashboard';
+import Layout from '@/ui/Layout';
 import { Hono } from 'hono';
-import ConfigPanel from '../ui/ConfigPanel';
-import Dashboard, { Environment } from '../ui/Dashboard';
-import Layout from '../ui/Layout';
-import { loadConfig } from '../utils/storage';
 
 export const app = new Hono<{ Bindings: Env }>();
 
