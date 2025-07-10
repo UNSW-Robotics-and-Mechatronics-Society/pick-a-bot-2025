@@ -1,5 +1,5 @@
 import { app } from './app';
-import { matchProcessorHandler } from './handlers/match-processor';
+import { matchProcessorHandler } from './cron-handlers/match-processor';
 
 export default {
 	fetch: app.fetch,
