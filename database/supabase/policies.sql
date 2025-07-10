@@ -6,6 +6,10 @@ ALTER TABLE "cron_log" ENABLE ROW LEVEL SECURITY;
 
 -- Enable Supabase Realtime for `match` table
 ALTER PUBLICATION supabase_realtime ADD TABLE "match";
+-- Enable Supabase Realtime for `current_match` table
+ALTER PUBLICATION supabase_realtime ADD TABLE "current_match";
+-- Enable Supabase Realtime for `upcoming_match` table
+ALTER PUBLICATION supabase_realtime ADD TABLE "upcoming_match";
 
 -- Public read access to match data
 CREATE POLICY "Anyone can read match data"
