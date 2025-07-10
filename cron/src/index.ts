@@ -1,9 +1,9 @@
 import { app } from './app';
-import cronHandler from './utils/cronHandler';
+import { matchProcessorHandler } from './cron-handlers/match-processor';
 
 export default {
 	fetch: app.fetch,
 	scheduled: async (event: ScheduledEvent, env: Env, ctx: ExecutionContext) => {
-		ctx.waitUntil(cronHandler(env, event.scheduledTime));
+		ctx.waitUntil(matchProcessorHandler(env, event.scheduledTime));
 	},
 };
