@@ -15,6 +15,13 @@
       "when": 1751969147745,
       "tag": "0001_abnormal_blonde_phantom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752152894675,
+      "tag": "0002_magenta_white_tiger",
+      "breakpoints": true
     }
   ]
 }
