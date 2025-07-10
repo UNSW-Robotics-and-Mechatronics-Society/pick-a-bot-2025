@@ -8,5 +8,4 @@ export const loadConfig = async (env: Env) => {
 
 export const saveConfig = async (env: Env, form: URLSearchParams) => {
 	await env.CONFIG_KV.put('TOURNAMENT_ID', form.get('tournamentId') || '');
-	await env.CONFIG_KV.put('SUPABASE_URL', form.get('supabaseUrl') || '');
 };

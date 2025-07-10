@@ -34,6 +34,21 @@
 		"skipLibCheck": true,
 		"types": [
 			"./worker-configuration.d.ts"
-		]
+		],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": [
+				"src/*"
+			],
+			"@challonge/*": [
+				"src/services/challonge/*"
+			],
+			"@database/*": [
+				"src/services/supabase/*"
+			],
+			"@schemas/*": [
+				"src/schemas/*"
+			],
+		}
 	}
 }
