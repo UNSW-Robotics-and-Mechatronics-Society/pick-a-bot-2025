@@ -10,6 +10,7 @@ export interface ParsedMatch {
 	start_time: string | null;
 	ordering: number;
 	tournament_id: string;
+	is_final: boolean;
 }
 
 export interface ChallongeParticipant {
