@@ -1,6 +1,6 @@
 import { loggers } from '@/lib/logger';
-import { loadConfig } from '@/utils/storage';
 import { ChallongeService } from './challonge';
+import { loadConfig } from './kv-storage';
 import { SupabaseAPIService } from './supabase/api-client';
 
 export class MatchService {
