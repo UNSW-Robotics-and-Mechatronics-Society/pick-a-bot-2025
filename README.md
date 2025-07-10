@@ -19,10 +19,166 @@ This repo contains everything needed to power the platform - from the frontend U
 - [Node.js](https://nodejs.org/en/download/) (v18+ recommended)
 - [bun](https://bun.sh/docs/installation) (for running cron jobs and database migrations)
 - [psql](https://www.postgresql.org/docs/current/app-psql.html) (PostgreSQL client for running migrations)
+- [curl](https://curl.se/) (for testing local cron jobs)
+
+> Check if you have the required tools installed
+
+```bash
+docker --version
+node --version
+bun --version
+psql --version
+curl --version
+```
 
 ## Getting Started
 
-### Frontend (and Backend) Setup
+### Local Database Setup
+
+This local database setup ensures your app is fully functional offline, while mimicking your production Supabase project as closely as possible. Allows you to develop and test features without needing a live Supabase instance.
+
+#### Docker Supabase Setup (`/docker`)
+
+1. **Setup Your Environment Variables**
+
+   From the `/docker` directory, copy `.env.example` -> `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   > Feel free to update any secrets for local development.
+
+2. **Start Supabase Locally**
+
+   Ensure Docker app is running, then in your project root:
+
+   ```bash
+    cd docker
+    docker compose up -d # detached mode
+   ```
+
+   This may run for a few minutes. This starts:
+
+   - PostgreSQL
+   - Supabase Auth, API, Realtime
+   - Supabase Studio Dashboard
+
+   You can check the status of your containers with:
+
+   ```bash
+   docker compose ps
+   ```
+
+3. **Access Supabase Studio**
+
+   Open: <http://localhost:8000>
+
+   Login with your username and password set in `docker/.env` (default: `postgres`/`<your_password>`).
+
+#### Database Setup (`/database`)
+
+1. **Setup Your Environment Variables**
+
+   From the `/database` directory, copy `.env.example` -> `.env`:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update the `.env` file with your local environment variables:
+
+   ```txt
+   DATABASE_URL=postgres://postgres:<your_password>@localhost:54322/postgres
+   # Replace <your_password> with the password you set in docker/.env
+   ```
+
+2. **Install Dependencies**
+
+   In the `/database` directory, run:
+
+   ```bash
+   bun install
+   ```
+
+3. **Run Database Migrations**
+
+   Right now, your local database is not in sync with the latest schema. From the project root, run:
+
+   ```bash
+   cd database
+   # Applies the latest schema migrations using Drizzle ORM
+   bun run db:push
+   # Applies Supabase RLS policies and grants from supabase/policies.sql
+   bun run db:apply-policies
+   ```
+
+   This applies the latest database schema using Drizzle ORM.
+
+### Cloudflare Cron Service (`/cron`)
+
+#### Run Cron Locally
+
+1. **Install Dependencies**
+
+   In the `/cron` directory, run:
+
+   ```bash
+   bun install
+   ```
+
+2. **Setup Environment Variables**
+
+   Copy `.dev.vars.example` -> `.dev.vars`:
+
+   ```bash
+   cp .dev.vars.example .dev.vars
+   ```
+
+   Update the `.dev.vars` file with your local environment variables:
+
+   ```txt
+   ENVIRONMENT=local
+   JOB_TRIGGER=local
+
+   CHALLONGE_API_KEY=your-challonge-api-key
+   # Get your Challonge API key from https://challonge.com/settings/account
+
+   DEFAULT_SUPABASE_URL=http://localhost:8000
+   SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
+   # Check docker/.env for your service role key
+
+   ADMIN_API_KEY=some-secret-key
+   ```
+
+   Your local service role key can be found in `docker/.env`.
+
+3. **Run the Local Cron Worker**:
+
+   ```bash
+   bun dev
+   ```
+
+   This starts the local Cloudflare Worker emulation for cron jobs. You can view the local dashboard at <http://localhost:8787>.
+
+4. **Open a new terminal and trigger it manually**:
+
+   ```bash
+   curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"
+   ```
+
+   This simulates a cron job hitting your local Worker endpoint.
+
+#### Configure Tournaments (Admin UI)
+
+The live development admin dashboard to manage tournaments (e.g. update tournament_id, set cron frequency) is available at the [DEV Pick-a-Bots 2025 Cron Admin Dashboard](https://pick-a-bots-2025-cron-dev.ramsocunsw.workers.dev).
+
+- Updates run every 5 minutes
+- Designed to auto-sync tournament state with dev Supabase
+
+> Note: The production admin dashboard will be available at a later date to save quota costs.
+
+### Frontend (and Backend) Setup (`/frontend`)
 
 1. **Install Dependencies**
 
@@ -30,7 +186,7 @@ This repo contains everything needed to power the platform - from the frontend U
 
    ```bash
    cd frontend
-   npm run install
+   bun install
    ```
 
 2. **Setup Environment Variables**
@@ -50,129 +206,7 @@ This repo contains everything needed to power the platform - from the frontend U
 3. **Run Development Server**
 
    ```bash
-   npm run dev
+   bun dev
    ```
 
    This spins up the Next.js development server. Open [http://localhost:3000](http://localhost:3000) to view the app.
-
-### Local Database Setup
-
-This local database setup ensures your app is fully functional offline, while mimicking your production Supabase project as closely as possible. Allows you to develop and test features without needing a live Supabase instance.
-
-1. **Update Your Environment Variables**
-
-   Copy `.env.example` -> `.env` and update all secrets before using in production.
-
-   Especially:
-
-   ```txt
-   POSTGRES_PASSWORD=your-own-password
-   JWT_SECRET=your-own-long-secret-32+chars
-   ANON_KEY=generate-your-own
-   SERVICE_ROLE_KEY=generate-your-own
-   ```
-
-   Can generate your anon and service role keys here if you like:
-   <https://supabase.com/docs/guides/self-hosting/docker#generate-api-keys>
-
-2. **Start Supabase Locally**
-
-   Ensure Docker app is running, then in your project root:
-
-   ```bash
-    cd docker
-    docker compose up -d
-   ```
-
-   This may run for a few minutes. This starts:
-
-   - PostgreSQL
-   - Supabase Auth, API, Realtime
-   - Supabase Studio Dashboard
-
-   You can check the status of your containers with:
-
-   ```bash
-   docker compose ps
-   ```
-
-3. **Run Database Migrations**
-
-   Right now, your local database is not in sync with the latest schema. From the project root, run:
-
-   ```bash
-   cd database
-   bun run db:push
-   psql <your-local-postgres-url> -f supabase/policies.sql
-   ```
-
-   This applies the latest database schema using Drizzle ORM.
-
-4. **Access Supabase Studio**
-
-   Open: <http://localhost:8000>
-
-   Login with:
-
-   - Username: `supabase`
-   - Password: `this_password_is_insecure_and_should_be_updated`
-
-### Cloudflare Cron Service (Local & Live)
-
-#### Run Cron Locally
-
-1. Install Dependencies
-
-   In the `cron` directory, run:
-
-   ```bash
-   cd cron
-   bun install
-   ```
-
-2. Setup Environment Variables
-
-   Copy `.dev.vars.example` -> `.dev.vars` and update all secrets.
-
-   Especially:
-
-   ```txt
-   ENVIRONMENT=local
-   JOB_TRIGGER=local
-
-   CHALLONGE_API_KEY=your-challonge-api-key
-   # Get your Challonge API key from https://challonge.com/settings/account
-
-   DEFAULT_SUPABASE_URL=http://localhost:8000
-   SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
-   # Check docker/.env for your service role key
-
-   ADMIN_API_KEY=some-secret-key
-   ```
-
-   Your local service role key can be found in `docker/.env`.
-
-3. Run the Local Cron Worker:
-
-   ```bash
-   bun run dev
-   ```
-
-   This starts the local Cloudflare Worker emulation for cron jobs. You can view the local dashboard at <http://localhost:8787>.
-
-4. Open a new terminal and trigger it manually:
-
-   ```bash
-   curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"
-   ```
-
-   This simulates a cron job hitting your local Worker endpoint.
-
-#### Configure Tournaments (Admin UI)
-
-The live development admin dashboard to manage tournaments (e.g. update tournament_id, set cron frequency) is available at the [DEV Pick-a-Bots 2025 Cron Admin Dashboard](https://pick-a-bots-2025-cron-dev.ramsocunsw.workers.dev).
-
-- Updates run every 5 minutes
-- Designed to auto-sync tournament state with dev Supabase
-
-> Note: The production admin dashboard will be available at a later date to save quota costs.
