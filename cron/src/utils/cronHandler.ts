@@ -44,7 +44,13 @@ const logCronResult = async (by: string, supabase: SupabaseClient, scheduledTime
 	}
 };
 
-const cronHandler = async (env: Env, scheduledTime: number) => {
+/**
+ * Handles the cron job for updating matches.
+ * @param env The environment variables.
+ * @param scheduledTime The time the job was scheduled.
+ * @returns {Promise<void>}
+ */
+const cronHandler = async (env: Env, scheduledTime: number): Promise<void> => {
 	const config = await loadConfig(env);
 	if (!config.tournamentId) {
 		console.error('[CRON] Tournament ID is not set.');
@@ -81,6 +87,7 @@ const cronHandler = async (env: Env, scheduledTime: number) => {
 			matches: matchIds,
 		});
 	} catch (err: any) {
+		console.error('[CRON] Error during match update:', err.message);
 		await logCronResult(executer, supabase, scheduledTime, 'FAILURE', err.message);
 	}
 };
