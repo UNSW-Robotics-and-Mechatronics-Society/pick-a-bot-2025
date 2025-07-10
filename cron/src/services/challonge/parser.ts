@@ -45,7 +45,12 @@ export class ChallongeMatchParser {
 		return [lastScore[0] ?? null, lastScore[1] ?? null];
 	}
 
-	public parseMatch(match: ChallongeMatch, tournamentId: string): ParsedMatch {
+	private isFinalMatch(numMatches: number, currentMatchOrder: number): boolean {
+		if (numMatches < 2) return false; // Not enough matches to determine final
+		return currentMatchOrder === numMatches;
+	}
+
+	public parseMatch(match: ChallongeMatch, numMatches: number, tournamentId: string): ParsedMatch {
 		try {
 			matchSchema.validateSync(match);
 		} catch (error) {
@@ -70,14 +75,15 @@ export class ChallongeMatchParser {
 			start_time: attributes.timestamps?.startedAt || null,
 			ordering: attributes.suggestedPlayOrder,
 			tournament_id: tournamentId,
+			is_final: this.isFinalMatch(numMatches, attributes.suggestedPlayOrder),
 		};
 	}
 
-	public parseMatches(matches: ChallongeMatch[], tournamentId: string): ParsedMatch[] {
+	public parseMatches(matches: ChallongeMatch[], numMatches: number, tournamentId: string): ParsedMatch[] {
 		return matches
 			.map((match) => {
 				try {
-					return this.parseMatch(match, tournamentId);
+					return this.parseMatch(match, numMatches, tournamentId);
 				} catch (error) {
 					console.error(`Failed to parse match ${match.id}:`, error);
 					return null;
