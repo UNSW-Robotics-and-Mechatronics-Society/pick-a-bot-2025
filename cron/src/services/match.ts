@@ -76,8 +76,6 @@ export class MatchService {
 	}
 
 	private async cleanupMatches(tournamentId: string): Promise<void> {
-		// You can either add this method to SupabaseAPIService or implement here
-		// For now, using the existing SupabaseAPIService pattern:
 		await this.supabaseService.replaceMatches(tournamentId, []);
 	}
 
