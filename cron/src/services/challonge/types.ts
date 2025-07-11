@@ -6,12 +6,28 @@ export interface ParsedMatch {
 	score_bot1: number | null;
 	score_bot2: number | null;
 	round: number;
-	state: string;
+	state: 'pending' | 'open' | 'complete';
 	underway_time: string | null;
 	ordering: number;
 	tournament_id: string;
 	is_final: boolean;
 }
+
+export type ParsedCurrentMatch = {
+	match_id: string;
+	bot1: string;
+	bot2: string;
+	winner: string | null;
+	score_bot1: number | null;
+	score_bot2: number | null;
+	round: number;
+	state: 'pending' | 'open' | 'complete';
+	underway_time: string | null;
+	ordering: number;
+	tournament_id: string;
+	updated_time: string | null;
+	is_final: boolean;
+};
 
 export interface ChallongeParticipant {
 	id: string;

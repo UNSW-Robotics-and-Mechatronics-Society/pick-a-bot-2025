@@ -22,7 +22,7 @@ export const upcomingMatch = pgTable("upcoming_match", {
   scoreBot2: smallint("score_bot2").default(0),
   round: integer("round").notNull(),
   state: matchStateEnum("state").notNull().default("pending"),
-  startTime: timestamp("start_time", { withTimezone: true }),
+  underwayTime: timestamp("underway_time", { withTimezone: true }),
   ordering: integer("ordering").notNull().unique(),
   tournamentId: text("tournament_id").notNull(),
   updatedTime: timestamp("updated_time", { withTimezone: true }).defaultNow(),

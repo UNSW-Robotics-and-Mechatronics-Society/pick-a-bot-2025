@@ -2,46 +2,123 @@
 ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "vote" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "match" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "current_match" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "upcoming_match" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "cron_log" ENABLE ROW LEVEL SECURITY;
 
--- Enable Supabase Realtime for `match` table
-ALTER PUBLICATION supabase_realtime ADD TABLE "match";
--- Enable Supabase Realtime for `current_match` table
-ALTER PUBLICATION supabase_realtime ADD TABLE "current_match";
--- Enable Supabase Realtime for `upcoming_match` table
-ALTER PUBLICATION supabase_realtime ADD TABLE "upcoming_match";
+-- Enable Supabase Realtime for tables (only if not already added)
+-- Check if table is already in publication before adding
+DO $$
+BEGIN
+    -- Add match table to realtime if not already present
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables
+        WHERE pubname = 'supabase_realtime' AND tablename = 'match'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE "match";
+    END IF;
 
--- Public read access to match data
-CREATE POLICY "Anyone can read match data"
-  ON "match"
-  FOR SELECT
-  TO public
-  USING (true);
+    -- Add current_match table to realtime if not already present
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables
+        WHERE pubname = 'supabase_realtime' AND tablename = 'current_match'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE "current_match";
+    END IF;
 
--- Allow authenticated users to view their own user row
-CREATE POLICY "Enable users to view their own data only"
-  ON "user"
-  FOR SELECT
-  TO authenticated
-  USING ("id" = auth.uid());
+    -- Add upcoming_match table to realtime if not already present
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables
+        WHERE pubname = 'supabase_realtime' AND tablename = 'upcoming_match'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE "upcoming_match";
+    END IF;
+END $$;
 
--- Allow authenticated users to insert their own vote
-CREATE POLICY "Users can insert their own vote"
-  ON "vote"
-  FOR INSERT
-  TO authenticated
-  WITH CHECK ("user_id" = auth.uid());
+-- Create policies only if they don't exist
+DO $$
+BEGIN
+    -- Public read access to match data
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'match' AND policyname = 'Anyone can read match data'
+    ) THEN
+        CREATE POLICY "Anyone can read match data"
+          ON "match"
+          FOR SELECT
+          TO public
+          USING (true);
+    END IF;
 
--- Allow authenticated users to view their own votes
-CREATE POLICY "Users can view their own vote"
-  ON "vote"
-  FOR SELECT
-  TO authenticated
-  USING ("user_id" = auth.uid());
+    -- Public read access to current match data
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'current_match' AND policyname = 'Anyone can read current match data'
+    ) THEN
+        CREATE POLICY "Anyone can read current match data"
+          ON "current_match"
+          FOR SELECT
+          TO public
+          USING (true);
+    END IF;
 
--- Allow service_role to insert cron logs
-CREATE POLICY "Allow service role insert"
-  ON "cron_log"
-  FOR INSERT
-  TO service_role
-  WITH CHECK (true);
+    -- Public read access to upcoming match data
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'upcoming_match' AND policyname = 'Anyone can read upcoming match data'
+    ) THEN
+        CREATE POLICY "Anyone can read upcoming match data"
+          ON "upcoming_match"
+          FOR SELECT
+          TO public
+          USING (true);
+    END IF;
+
+    -- Allow authenticated users to view their own user row
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'user' AND policyname = 'Enable users to view their own data only'
+    ) THEN
+        CREATE POLICY "Enable users to view their own data only"
+          ON "user"
+          FOR SELECT
+          TO authenticated
+          USING ("id" = auth.uid());
+    END IF;
+
+    -- Allow authenticated users to insert their own vote
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'vote' AND policyname = 'Users can insert their own vote'
+    ) THEN
+        CREATE POLICY "Users can insert their own vote"
+          ON "vote"
+          FOR INSERT
+          TO authenticated
+          WITH CHECK ("user_id" = auth.uid());
+    END IF;
+
+    -- Allow authenticated users to view their own votes
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'vote' AND policyname = 'Users can view their own vote'
+    ) THEN
+        CREATE POLICY "Users can view their own vote"
+          ON "vote"
+          FOR SELECT
+          TO authenticated
+          USING ("user_id" = auth.uid());
+    END IF;
+
+    -- Allow service_role to insert cron logs
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'cron_log' AND policyname = 'Allow service role insert'
+    ) THEN
+        CREATE POLICY "Allow service role insert"
+          ON "cron_log"
+          FOR INSERT
+          TO service_role
+          WITH CHECK (true);
+    END IF;
+END $$;
