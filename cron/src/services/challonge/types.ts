@@ -7,7 +7,7 @@ export interface ParsedMatch {
 	score_bot2: number | null;
 	round: number;
 	state: string;
-	start_time: string | null;
+	underway_time: string | null;
 	ordering: number;
 	tournament_id: string;
 	is_final: boolean;
@@ -28,8 +28,11 @@ export interface ChallongeMatch {
 		suggestedPlayOrder: number;
 		scoreInSets?: number[][];
 		winners?: string | number;
-		timestamps?: {
-			startedAt?: string;
+		timestamps: {
+			startedAt: string;
+			createdAt: string;
+			updatedAt: string;
+			underwayAt: string | null;
 		};
 	};
 	relationships: {

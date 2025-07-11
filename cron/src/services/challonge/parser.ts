@@ -1,5 +1,5 @@
-import { ValidationError } from '../../exceptions';
-import { matchSchema, participantSchema } from '../../schemas/challonge';
+import { ValidationError } from '@/exceptions';
+import { matchSchema, participantSchema } from '@/schemas/challonge';
 import { ChallongeMatch, ChallongeParticipant, ParsedMatch } from './types';
 
 export class ChallongeMatchParser {
@@ -72,7 +72,7 @@ export class ChallongeMatchParser {
 			score_bot2: score2,
 			round: attributes.round,
 			state: attributes.state,
-			start_time: attributes.timestamps?.startedAt || null,
+			underway_time: attributes.timestamps?.underwayAt || null,
 			ordering: attributes.suggestedPlayOrder,
 			tournament_id: tournamentId,
 			is_final: this.isFinalMatch(numMatches, attributes.suggestedPlayOrder),
