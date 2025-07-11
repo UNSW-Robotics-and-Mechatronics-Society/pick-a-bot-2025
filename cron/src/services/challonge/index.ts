@@ -12,7 +12,7 @@ export class ChallongeService {
 	async getMatches(tournamentId: string): Promise<ParsedMatch[]> {
 		const response = await this.apiClient.getMatches(tournamentId);
 		const parser = new ChallongeMatchParser(response.included);
-		return parser.parseMatches(response.data, tournamentId);
+		return parser.parseMatches(response.data, response.meta?.count, tournamentId);
 	}
 }
 
