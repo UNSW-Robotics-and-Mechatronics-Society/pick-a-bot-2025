@@ -1,0 +1,1 @@
+ALTER TABLE "match" RENAME COLUMN "start_time" TO "underway_time";
