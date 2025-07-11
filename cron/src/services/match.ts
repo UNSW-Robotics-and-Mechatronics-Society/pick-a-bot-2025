@@ -51,7 +51,10 @@ export class MatchService {
 				return;
 			}
 
-			// 2. Replace matches using SupabaseAPIService
+			// 2. Clear current match before replacing matches
+			await this.supabaseService.replaceCurrentMatch(config.tournamentId, null);
+
+			// 3. Replace match table
 			await this.supabaseService.replaceMatches(config.tournamentId, matches);
 
 			this.logger.info('Tournament matches processed successfully', {
@@ -59,11 +62,16 @@ export class MatchService {
 				matchesProcessed: matches.length,
 			});
 
+			// 4. Replace current match table
+			const currentMatch = await this.supabaseService.getCurrentMatch(config.tournamentId);
+			await this.supabaseService.replaceCurrentMatch(config.tournamentId, currentMatch);
+
 			await this.logCronResult(env, executer, scheduledTime, 'SUCCESS', {
 				tournamentId: config.tournamentId,
 				action: 'upsert',
 				numMatches: matches.length,
 				matches: matches.map((m) => m.challonge_match_id),
+				currentMatch: currentMatch?.match_id || null,
 			});
 		} catch (error: any) {
 			this.logger.logError(error, 'Match processing failed', {
