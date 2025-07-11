@@ -18,6 +18,20 @@ CREATE POLICY "Anyone can read match data"
   TO public
   USING (true);
 
+-- Public read access to current match data
+CREATE POLICY "Anyone can read current match data"
+  ON "current_match"
+  FOR SELECT
+  TO public
+  USING (true);
+
+-- Public read access to upcoming match data
+CREATE POLICY "Anyone can read upcoming match data"
+  ON "upcoming_match"
+  FOR SELECT
+  TO public
+  USING (true);
+
 -- Allow authenticated users to view their own user row
 CREATE POLICY "Enable users to view their own data only"
   ON "user"
