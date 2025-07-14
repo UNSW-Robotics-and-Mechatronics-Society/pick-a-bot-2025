@@ -1,4 +1,3 @@
-name = "pick-a-bots-2025-cron"
 main = "src/index.ts"
 compatibility_date = "2025-06-23"
 
@@ -6,13 +5,24 @@ workers_dev = false
 
 assets = { directory = "public" }
 
-# Production environment (default)
-[triggers]
+# Production environment
+[env.prod]
+name = "pick-a-bots-2025-cron"
+routes = [
+  { pattern = "cron.pickabots.ramsocunsw.org", custom_domain = true },
+  { pattern = "www.cron.pickabots.ramsocunsw.org", custom_domain = true }
+]
+
+[env.prod.triggers]
 crons = ["*/1 * * * *"]
 
 # Development environment
 [env.dev]
 name = "pick-a-bots-2025-cron-dev"
+routes = [
+  { pattern = "cron.pickabots.dev.ramsocunsw.org", custom_domain = true },
+  { pattern = "www.cron.pickabots.dev.ramsocunsw.org", custom_domain = true }
+]
 
 [env.dev.triggers]
 crons = ["*/5 * * * *"]
