@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   if (!dbResp.data) {
     dbResp = await supabase
       .from("user")
-      .insert({ name, email })
+      .insert({ name, email, tokens: 100 })
       .select()
       .single();
   }
@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
     .setIssuedAt()
     .setExpirationTime("1y")
     .sign(secret);
-
   return Response.json({
     jwt,
     name,
