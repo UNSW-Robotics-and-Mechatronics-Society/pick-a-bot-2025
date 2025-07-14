@@ -1,7 +1,6 @@
 # For more details on how to configure Wrangler, refer to:
 # https://developers.cloudflare.com/workers/wrangler/configuration/
 
-name = "pick-a-bots-2025"
 main = ".open-next/worker.js"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
@@ -12,6 +11,22 @@ directory = ".open-next/assets"
 
 [observability]
 enabled = true
+
+[env.prod]
+name = "pick-a-bots-2025"
+routes = [
+  { pattern = "pickabots.ramsocunsw.org", custom_domain = true },
+  { pattern = "www.pickabots.ramsocunsw.org", custom_domain = true }
+]
+
+[env.dev]
+name = "pick-a-bots-2025-dev"
+routes = [
+  { pattern = "pickabots.dev.ramsocunsw.org", custom_domain = true },
+  { pattern = "www.pickabots.dev.ramsocunsw.org", custom_domain = true }
+]
+
+
 
 
 # ----------------------------
