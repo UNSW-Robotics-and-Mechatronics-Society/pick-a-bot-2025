@@ -18,8 +18,8 @@
   "editor.tabSize": 2,
   "editor.trimAutoWhitespace": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.organizeImports": true
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
   },
   // Optional: format HTML manually if using embedded templates
   "[html]": {
