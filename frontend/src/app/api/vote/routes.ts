@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { decodeJwt } from "jose";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 interface bodyRequest {
   matchId: string;
@@ -42,7 +42,7 @@ interface matchData {
   is_final: boolean;
 }
 
-export async function POST(request: NextResponse) {
+export async function POST(request: NextRequest) {
   const supabase = createClient(
     process.env.DB_URL as string,
     process.env.DB_SECRET_KEY as string
