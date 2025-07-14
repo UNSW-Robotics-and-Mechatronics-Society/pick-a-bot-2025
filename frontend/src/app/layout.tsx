@@ -1,9 +1,8 @@
+import { ColorModeButton } from "@/components/ColorModeButton";
+import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "./Provider";
-import { ColorModeButton } from "@/components/ColorModeButton";
-import { Box } from "@chakra-ui/react";
-import ArcLogo from "@/components/ArcLogo";
 
 export const metadata: Metadata = {
   title: "Pick-A-BOTS | RAMSoc Sumobots 2025",

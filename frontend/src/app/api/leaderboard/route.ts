@@ -1,18 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
-import { type NextRequest } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(process.env.DB_URL as string, process.env.DB_SECRET_KEY as string)
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
+    const supabase = createClient(
+      process.env.DB_URL as string,
+      process.env.DB_SECRET_KEY as string
+    );
     const dbResp = await supabase
-      .from('user')
-      .select('name, tokens')
-      .order('tokens', { ascending: false });
+      .from("user")
+      .select("name, tokens")
+      .order("tokens", { ascending: false });
 
     if (!dbResp.data) {
-      throw new Error('No data found');
-    } 
+      throw new Error("No data found");
+    }
 
     console.log(dbResp);
 
@@ -20,8 +21,6 @@ export async function GET(request: NextRequest) {
       dbResp,
     });
   } catch (err) {
-    console.error('Error fetching leaderboard:', err);
+    console.error("Error fetching leaderboard:", err);
   }
 }
-
-export const runtime = 'edge'

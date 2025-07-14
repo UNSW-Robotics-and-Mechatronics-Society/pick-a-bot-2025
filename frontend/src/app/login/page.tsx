@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  Center,
-  Heading,
-  Input,
-  Text
-} from "@chakra-ui/react";
+import { Box, Button, Center, Heading, Input, Text } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import Image from "next/image";
@@ -26,9 +19,9 @@ export default function LoginPage() {
   const [isAccessCodeInvalid, setIsAccessCodeInvalid] = useState(false);
   const REQUIRED_ACCESS_CODE = "PICKABOT2025";
 
-  const [jwt, setJWT] = useLocalStorage("jwt", "");
-  const [storedEmail, setStoredEmail] = useLocalStorage("email", "");
-  const [storedName, setStoredName] = useLocalStorage("name", "");
+  const [, setJWT] = useLocalStorage("jwt", "");
+  const [, setStoredEmail] = useLocalStorage("email", "");
+  const [, setStoredName] = useLocalStorage("name", "");
 
   const {
     register,
@@ -77,7 +70,12 @@ export default function LoginPage() {
     >
       <Box maxW="400px" width="full">
         <Center display="flex" flexDirection="column" marginBottom="8">
-          <Image src="/ramsoc-logo-blue.svg" alt="Logo" width={100} height={100} />
+          <Image
+            src="/ramsoc-logo-blue.svg"
+            alt="Logo"
+            width={100}
+            height={100}
+          />
           <Heading size="2xl" marginTop="4">
             Join the Competition
           </Heading>
