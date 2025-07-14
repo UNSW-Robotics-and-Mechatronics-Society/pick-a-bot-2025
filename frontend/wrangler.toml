@@ -1,0 +1,33 @@
+# For more details on how to configure Wrangler, refer to:
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "pick-a-bots-2025"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+binding   = "ASSETS"
+directory = ".open-next/assets"
+
+[observability]
+enabled = true
+
+
+# ----------------------------
+# Optional sections commented out below
+# ----------------------------
+
+# # Environment Variables
+# [vars]
+# MY_VARIABLE = "production_value"
+
+# # Service Bindings
+# [[services]]
+# binding = "MY_SERVICE"
+# service = "my-service"
+
+# # Smart Placement
+# # Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
+# # [placement]
+# # mode = "smart"
