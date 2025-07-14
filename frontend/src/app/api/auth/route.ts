@@ -2,11 +2,16 @@ import { createClient } from "@supabase/supabase-js";
 import { SignJWT } from "jose";
 import { type NextRequest } from "next/server";
 
+interface newUser {
+  name: string;
+  email: string;
+}
+
 export async function POST(request: NextRequest) {
   const secret = new TextEncoder().encode("secret");
-  const body = await request.json();
+  const body = await request.json<newUser>();
 
-  const { name, email } = body as any;
+  const { name, email } = body;
   const supabase = createClient(
     process.env.DB_URL as string,
     process.env.DB_SECRET_KEY as string
@@ -39,5 +44,3 @@ export async function POST(request: NextRequest) {
     email,
   });
 }
-
-export const runtime = "edge";

@@ -1,6 +1,6 @@
 {
   "files.associations": {
-    "wrangler.json": "jsonc"
+    "wrangler.toml": "toml"
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",

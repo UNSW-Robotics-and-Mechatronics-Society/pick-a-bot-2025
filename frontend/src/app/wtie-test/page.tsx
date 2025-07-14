@@ -22,7 +22,7 @@ interface FormValues {
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);
-  const [jwt, setJWT] = useLocalStorage("jwt", "");
+  const [, setJWT] = useLocalStorage("jwt", "");
   const [email, setEmail] = useLocalStorage("email", "");
   const [name, setName] = useLocalStorage("name", "");
 
@@ -34,7 +34,7 @@ export default function Page() {
 
   const auth = useMutation({
     mutationFn: async (form: FormValues) => {
-      let { data } = await axios.post("/api/auth", {
+      const { data } = await axios.post("/api/auth", {
         name: form.name,
         email: form.email,
       });
