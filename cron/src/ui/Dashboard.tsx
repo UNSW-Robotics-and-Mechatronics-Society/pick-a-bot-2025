@@ -1,5 +1,5 @@
 import { FC } from 'hono/jsx';
-import { CRON_URLS } from '../constants';
+import { CRON_URLS } from '../lib/constants';
 
 export type Environment = 'local' | 'dev' | 'prod';
 

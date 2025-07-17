@@ -1,6 +1,5 @@
 "use client";
 
-import { ColorModeButton } from "@/components/ColorModeButton";
 import {
   Button,
   Field,
@@ -13,7 +12,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useLocalStorage } from "usehooks-ts";
 
 interface FormValues {
@@ -23,7 +22,7 @@ interface FormValues {
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);
-  const [jwt, setJWT] = useLocalStorage("jwt", "");
+  const [, setJWT] = useLocalStorage("jwt", "");
   const [email, setEmail] = useLocalStorage("email", "");
   const [name, setName] = useLocalStorage("name", "");
 
@@ -35,7 +34,7 @@ export default function Page() {
 
   const auth = useMutation({
     mutationFn: async (form: FormValues) => {
-      let { data } = await axios.post("/api/auth", {
+      const { data } = await axios.post("/api/auth", {
         name: form.name,
         email: form.email,
       });

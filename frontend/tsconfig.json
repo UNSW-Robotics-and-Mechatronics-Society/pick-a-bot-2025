@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,7 +22,7 @@
       "@/*": ["./src/*"]
     },
     "types": [
-        "./env.d.ts",
+        "./cloudflare-env.d.ts",
         "node"
     ]
   },
