@@ -31,6 +31,11 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [matchPayload, setMatchPayload] = useState<any>();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
@@ -144,11 +149,19 @@ export default function DashboardPage() {
       <Center flexDirection="column" h="90%" w="100%" p="4" maxW={"500px"} mx="auto"> 
         <Box w="100%" display="flex" justifyContent="space-between" mb="4">
           <Heading fontWeight="bold">
-            Welcome {name ? `${name}` : <Skeleton marginBottom={-0.5} width="80px" height="1em" display="inline-block" />}
+            Welcome{" "}
+            {mounted
+              ? name || <Skeleton marginBottom={-0.5} width="80px" height="1em" display="inline-block" />
+              : ""}
           </Heading>
           <Box display={"flex"} flexDir={"row"} alignItems="center">
-            <Heading fontWeight="bold" color="orange.500" mr="2">{user?.tokens ?? 
-              <Skeleton marginBottom={-0.5} width="50px" height="1em" display="inline-block"/>}</Heading>
+            <Heading fontWeight="bold" color="orange.500" mr="2">
+              {mounted
+                ? user?.tokens ?? (
+                    <Skeleton marginBottom={-0.5} width="50px" height="1em" display="inline-block" />
+                  )
+                : ""}
+            </Heading>
             <Image 
               src="/ram-buck.svg"
               height="30"
