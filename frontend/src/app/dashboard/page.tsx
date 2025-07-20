@@ -8,9 +8,8 @@ import {
   Field,
   Heading,
   Input,
-  Skeleton
+  Skeleton,
 } from "@chakra-ui/react";
-import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -18,18 +17,27 @@ import { FaLock } from "react-icons/fa";
 import { useLocalStorage } from "usehooks-ts";
 import Match from "../../components/ui/match";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_DB_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_DB_SECRET_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 export default function DashboardPage() {
   const [selected, setSelected] = useState("");
-  const [name, setName] = useLocalStorage("name", "");
+  const [name] = useLocalStorage("name", "");
   const [jwt] = useLocalStorage("jwt", "");
   const [email] = useLocalStorage("email", "");
-  const [amount, setAmount] = useState(""); 
-  const [user, setUser] = useState<any>(null);
-  const [matchPayload, setMatchPayload] = useState<any>();
+  const [amount, setAmount] = useState("");
+  interface MatchType {
+    bot1: string;
+    bot2: string;
+    is_final: boolean;
+    challonge_match_id: string;
+    [key: string]: unknown;
+  }
+
+  interface UserType {
+    tokens: number;
+    [key: string]: unknown;
+  }
+
+  const [user, setUser] = useState<UserType | null>(null);
+  const [matchPayload] = useState<MatchType[] | null>(null);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -45,55 +53,68 @@ export default function DashboardPage() {
         console.error("User not found");
         return;
       }
-      const userData = await res.json();
-      if (userData) setUser(userData);
+      const userData: Partial<UserType> = await res.json();
+      if (userData && typeof userData.tokens === "number")
+        setUser(userData as UserType);
     };
 
     fetchUser();
   }, [email]);
 
   // Fetch matches
-  useEffect(() => {
-    const fetchMatches = async () => {
-      const { data, error } = await supabase
-        .from("match")
-        .select("*")
-        .order("ordering", { ascending: true });
+  // useEffect(() => {
+  //   const fetchMatches = async () => {
+  //     const error = null;
 
-      if (error) console.error("Match fetch error:", error);
-      else setMatchPayload(data);
-    };
+  //     if (error) console.error("Match fetch error:", error);
+  //   };
 
-    fetchMatches();
+  //   fetchMatches();
 
-    const matchSub = supabase
-      .channel("public:match")
-      .on("postgres_changes", { event: "*", schema: "public", table: "match" }, () => {
-        console.log("Match changed. Refetching...");
-        fetchMatches();
-      })
-      .subscribe();
+  //   const matchSub = supabase
+  //     .channel("public:match")
+  //     .on(
+  //       "postgres_changes",
+  //       { event: "*", schema: "public", table: "match" },
+  //       () => {
+  //         console.log("Match changed. Refetching...");
+  //         fetchMatches();
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(matchSub);
-    };
-  }, []);
+  //   return () => {
+  //     supabase.removeChannel(matchSub);
+  //   };
+  // }, []);
 
   const handleVote = async () => {
     const parsedAmount = parseInt(amount, 10);
 
     if (!selected) {
-      toaster.create({ title: "No bot selected", type: "error", closable: true });
+      toaster.create({
+        title: "No bot selected",
+        type: "error",
+        closable: true,
+      });
       return;
     }
 
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      toaster.create({ title: "Invalid token amount", type: "error", closable: true });
+      toaster.create({
+        title: "Invalid token amount",
+        type: "error",
+        closable: true,
+      });
       return;
     }
 
     if (!user) {
-      toaster.create({ title: "User data not loaded", type: "error", closable: true });
+      toaster.create({
+        title: "User data not loaded",
+        type: "error",
+        closable: true,
+      });
       return;
     }
 
@@ -112,7 +133,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const res = await axios.post("/api/vote", {
+      await axios.post("/api/vote", {
         matchId: matchPayload?.[0]?.challonge_match_id,
         botChosen: selected,
         amount: parsedAmount,
@@ -127,10 +148,15 @@ export default function DashboardPage() {
       });
 
       // Optional: refresh user token count
-      const updatedUser = await fetch(`/api/user?email=${email}`).then(res => res.json());
+      const updatedUser = await fetch(`/api/user?email=${email}`).then(
+        (res) => res.json() as Promise<UserType>
+      );
       setUser(updatedUser);
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || "Unknown error";
+    } catch (err: unknown) {
+      const errorMessage =
+        axios.isAxiosError(err) && err.response?.data?.error
+          ? err.response.data.error
+          : "Unknown error";
       toaster.create({
         title: "Vote failed",
         description: errorMessage,
@@ -146,23 +172,42 @@ export default function DashboardPage() {
   return (
     <Box padding="4" h="dvh" w="dvw" fontSize="md">
       <Toaster />
-      <Center flexDirection="column" h="90%" w="100%" p="4" maxW={"500px"} mx="auto"> 
+      <Center
+        flexDirection="column"
+        h="90%"
+        w="100%"
+        p="4"
+        maxW={"500px"}
+        mx="auto"
+      >
         <Box w="100%" display="flex" justifyContent="space-between" mb="4">
           <Heading fontWeight="bold">
             Welcome{" "}
             {mounted
-              ? name || <Skeleton marginBottom={-0.5} width="80px" height="1em" display="inline-block" />
+              ? name || (
+                  <Skeleton
+                    marginBottom={-0.5}
+                    width="80px"
+                    height="1em"
+                    display="inline-block"
+                  />
+                )
               : ""}
           </Heading>
           <Box display={"flex"} flexDir={"row"} alignItems="center">
             <Heading fontWeight="bold" color="orange.500" mr="2">
               {mounted
-                ? user?.tokens ?? (
-                    <Skeleton marginBottom={-0.5} width="50px" height="1em" display="inline-block" />
-                  )
+                ? (user?.tokens ?? (
+                    <Skeleton
+                      marginBottom={-0.5}
+                      width="50px"
+                      height="1em"
+                      display="inline-block"
+                    />
+                  ))
                 : ""}
             </Heading>
-            <Image 
+            <Image
               src="/ram-buck.svg"
               height="30"
               width="30"
@@ -173,7 +218,7 @@ export default function DashboardPage() {
         <Box w="100%">
           <Heading>Current Round</Heading>
           {currentMatch ? (
-            <Match 
+            <Match
               leftLabel={currentMatch.bot1}
               rightLabel={currentMatch.bot2}
               leftColor="blue.500"
@@ -187,7 +232,7 @@ export default function DashboardPage() {
 
           <Heading>Upcoming Round</Heading>
           {upcomingMatch ? (
-            <Match 
+            <Match
               leftLabel={upcomingMatch.bot1}
               rightLabel={upcomingMatch.bot2}
               leftColor="green.500"
@@ -202,36 +247,44 @@ export default function DashboardPage() {
 
         <Box w="100%">
           <Heading>Betting</Heading>
-          <Box textAlign="center" fontWeight={"Bold"}>Pick a Bot!</Box>
+          <Box textAlign="center" fontWeight={"Bold"}>
+            Pick a Bot!
+          </Box>
           <ButtonGroup w="100%" mb="4">
-            {[currentMatch?.bot1, currentMatch?.bot2].map((item) => (
-              <Button
-                key={item}
-                flex="1"
-                p="5"
-                fontWeight="bold"
-                fontSize="lg"
-                borderRadius="md"
-                borderWidth="3px"
-                colorScheme={selected === item ? "purple" : "gray"}
-                variant={selected === item ? "solid" : "outline"}
-                onClick={() => setSelected(item)}
-                bg={selected === item ? "pink.400" : "gray.700"}
-                color={selected === item ? "white" : "gray.300"}
-                borderColor={selected === item ? "pink.500" : "gray.600"}
-                _hover={{
-                  bg: selected === item ? "purple.600" : "gray.600",
-                }}
-              >
-                {item}
-              </Button>
-            ))}
+            {[currentMatch?.bot1, currentMatch?.bot2]
+              .filter((item): item is string => typeof item === "string")
+              .map((item) => (
+                <Button
+                  key={item}
+                  flex="1"
+                  p="5"
+                  fontWeight="bold"
+                  fontSize="lg"
+                  borderRadius="md"
+                  borderWidth="3px"
+                  colorScheme={selected === item ? "purple" : "gray"}
+                  variant={selected === item ? "solid" : "outline"}
+                  onClick={() => setSelected(item)}
+                  bg={selected === item ? "pink.400" : "gray.700"}
+                  color={selected === item ? "white" : "gray.300"}
+                  borderColor={selected === item ? "pink.500" : "gray.600"}
+                  _hover={{
+                    bg: selected === item ? "purple.600" : "gray.600",
+                  }}
+                >
+                  {item}
+                </Button>
+              ))}
           </ButtonGroup>
 
-          <Box textAlign="center" fontWeight={"Bold"}>How much?</Box>
-          <Box textAlign="center" fontStyle="italic" color="gray.600">This round is capped at 50%</Box>
+          <Box textAlign="center" fontWeight={"Bold"}>
+            How much?
+          </Box>
+          <Box textAlign="center" fontStyle="italic" color="gray.600">
+            This round is capped at 50%
+          </Box>
           <Field.Root mb="4">
-            <Input 
+            <Input
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Please enter your amount    /300"
@@ -249,7 +302,7 @@ export default function DashboardPage() {
             />
           </Field.Root>
 
-          <Button 
+          <Button
             w="100%"
             p="5"
             color="red.600"
@@ -261,7 +314,8 @@ export default function DashboardPage() {
             borderWidth="3px"
             onClick={handleVote}
           >
-            <FaLock />Lock Selection
+            <FaLock />
+            Lock Selection
           </Button>
         </Box>
       </Center>
