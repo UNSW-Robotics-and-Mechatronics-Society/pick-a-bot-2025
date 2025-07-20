@@ -1,29 +1,33 @@
 import { NextResponse, type NextRequest } from "next/server";
-import * as yup from "yup";
 
+import { joinSchema } from "@/schemas";
 import { validateRequest } from "@lib";
 import { createClient } from "@lib/supabase/server";
-import { signInOrSignUp, upsertProfile } from "@services";
-
-const joinSchema = yup.object({
-  accessCode: yup
-    .string()
-    .required("`accessCode` is required")
-    .oneOf(["PICKABOT2025"], "`accessCode` must match"),
-  name: yup.string().required("`name` is required"),
-  email: yup
-    .string()
-    .email("`email` must be valid")
-    .required("`email` is required"),
-});
+import { isValidAccessCode, signInOrSignUp, upsertProfile } from "@services";
 
 export const POST = async (request: NextRequest) => {
   const supabase = await createClient();
 
-  const result = await validateRequest(request, joinSchema, {
-    abortEarly: false,
-    stripUnknown: true,
-  });
+  const result = await validateRequest(
+    request,
+    joinSchema,
+    {
+      abortEarly: false,
+      stripUnknown: true,
+    },
+    {
+      pre: async (raw) => {
+        const { accessCode } = raw as { accessCode: string };
+        if (!accessCode) {
+          return { error: "Access code is required", status: 400 };
+        }
+        if (!(await isValidAccessCode(accessCode))) {
+          return { error: "Invalid access code", status: 403 };
+        }
+      },
+    }
+  );
+
   if ("error" in result) {
     const err = result;
     return NextResponse.json({ error: err.error }, { status: err.status });
@@ -45,6 +49,7 @@ export const POST = async (request: NextRequest) => {
     email
   );
   if (!profileRes.success) {
+    console.error(profileRes.error);
     return NextResponse.json({ error: profileRes.error }, { status: 500 });
   }
 
