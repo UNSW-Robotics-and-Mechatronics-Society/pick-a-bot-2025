@@ -1,26 +1,7 @@
+import BAD_WORDS from "@/data/bad-words.json";
 import * as yup from "yup";
 
-const BANNED_NAMES = [
-  "admin",
-  "root",
-  "superuser",
-  "staff",
-  "ramsoc",
-  "pick-a-bot",
-  "pickabot",
-  "fuck",
-  "shit",
-  "bitch",
-  "asshole",
-  "cunt",
-  "motherfucker",
-  "fucker",
-  "cocksucker",
-  "dickhead",
-  "pussy",
-  "bastard",
-  "dick",
-];
+export const BANNED_WORDS = BAD_WORDS.concat(["ramsoc", "pick-a-bot", "admin"]);
 
 export const joinSchema = yup.object({
   accessCode: yup.string().required("Access Code is required"),
@@ -33,7 +14,7 @@ export const joinSchema = yup.object({
       (value) => {
         if (!value) return false;
         const lower = value.toLowerCase();
-        return !BANNED_NAMES.some((bad) => lower.includes(bad));
+        return !BANNED_WORDS.some((bad) => lower.includes(bad));
       }
     ),
   email: yup
