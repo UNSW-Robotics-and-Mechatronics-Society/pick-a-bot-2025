@@ -54,14 +54,16 @@ export default function LandingPage() {
                 Each player will be given 100 starting tokens
               </List.Item>
               <List.Item>
-                Each round of the finals you will be able to &quot;vote&quot; on a bot
+                Each round of the finals you will be able to &quot;vote&quot; on
+                a bot
               </List.Item>
               <List.Item>
-                If you win a &quot;vote&quot;, the tokens you &quot;vote&quot; will be doubled
+                If you win a &quot;vote&quot;, the tokens you &quot;vote&quot;
+                will be doubled
               </List.Item>
               <List.Item>
-                &quot;Voting&quot; for each round will have a cap on how much you can
-                &quot;vote&quot; except the final
+                &quot;Voting&quot; for each round will have a cap on how much
+                you can &quot;vote&quot; except the final
               </List.Item>
               <List.Item>You are competing to have the most tokens</List.Item>
               <List.Item>The winner will get a prize of ______</List.Item>
@@ -87,8 +89,8 @@ export default function LandingPage() {
           color="white"
           asChild
         >
-          <NextLink href={jwt ? "/dashboard" : "/login"}>
-            {jwt ? `Enter as ${name}` : "Login"}
+          <NextLink href={jwt ? "/dashboard" : "/join"}>
+            {jwt ? `Enter as ${name}` : "Join"}
           </NextLink>
         </Button>
       </Stack>
