@@ -49,8 +49,11 @@ export const POST = async (request: NextRequest) => {
     email
   );
   if (!profileRes.success) {
-    console.error(profileRes.error);
-    return NextResponse.json({ error: profileRes.error }, { status: 500 });
+    console.error("Profile upsert error:", profileRes.error);
+    return NextResponse.json(
+      { error: profileRes.error },
+      { status: profileRes.status }
+    );
   }
 
   return NextResponse.json({ message: "Welcome!", userId: authRes.user.id });
