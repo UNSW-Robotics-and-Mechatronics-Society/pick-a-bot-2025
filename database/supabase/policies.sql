@@ -86,6 +86,30 @@ BEGIN
           USING ("id" = auth.uid());
     END IF;
 
+    -- Allow authenticated users to insert their own user row
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'user' AND policyname = 'Users can insert own user row'
+    ) THEN
+        CREATE POLICY "Users can insert own user row"
+          ON "user"
+          FOR INSERT
+          TO authenticated
+          WITH CHECK ("id" = auth.uid());
+    END IF;
+
+    -- Allow authenticated users to update their own user row
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'user' AND policyname = 'Users can update own user row'
+    ) THEN
+        CREATE POLICY "Users can update own user row"
+          ON "user"
+          FOR UPDATE
+          TO authenticated
+          USING ("id" = auth.uid());
+    END IF;
+
     -- Allow authenticated users to insert their own vote
     IF NOT EXISTS (
         SELECT 1 FROM pg_policies
