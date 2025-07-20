@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -15,10 +16,14 @@ export async function GET() {
 
     console.log(dbResp);
 
-    return Response.json({
+    return NextResponse.json({
       dbResp,
     });
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
