@@ -2,6 +2,14 @@
 
 import { SupabaseClient } from "@supabase/supabase-js";
 
+export const isValidAccessCode = async (code: string): Promise<boolean> => {
+  const REQUIRED_ACCESS_CODE = process.env.ACCESS_CODE;
+  if (!REQUIRED_ACCESS_CODE) {
+    throw new Error("Access code is not set");
+  }
+  return code === REQUIRED_ACCESS_CODE;
+};
+
 export const signInOrSignUp = async (
   supabase: SupabaseClient,
   email: string,
@@ -21,7 +29,6 @@ export const signInOrSignUp = async (
   if (signInData?.user) {
     return { user: signInData.user };
   }
-  console.log("data", signInData);
 
   // if “invalid credentials”, sign-up
   if (signInError?.code === "invalid_credentials") {
