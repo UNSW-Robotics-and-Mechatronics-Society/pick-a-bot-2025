@@ -1,18 +1,54 @@
 "use client";
 
-import { Box, Button, Center, Heading, Input, Text } from "@chakra-ui/react";
+import { toaster } from "@/components/ui/toaster";
+import { joinSchema } from "@/schemas";
+import { isValidAccessCode } from "@/services";
+import {
+  Button,
+  Center,
+  Field,
+  Heading,
+  Input,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldError, useForm } from "react-hook-form";
 
 interface FormValues {
+  accessCode: string;
   name: string;
   email: string;
-  accessCode: string;
 }
+
+const fieldConfigs: Array<{
+  key: keyof FormValues;
+  label: string;
+  placeholder: string;
+  type?: string;
+}> = [
+  {
+    key: "accessCode",
+    label: "Access Code",
+    placeholder: "Enter event access code",
+  },
+  {
+    key: "name",
+    label: "Display Name",
+    placeholder: "Enter your display name",
+  },
+  {
+    key: "email",
+    label: "Email",
+    placeholder: "you@example.com",
+    type: "email",
+  },
+];
 
 export default function JoinPage() {
   const router = useRouter();
@@ -21,27 +57,49 @@ export default function JoinPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    resolver: yupResolver(joinSchema),
+  });
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (form: FormValues) => {
-      const response = await axios.post(
-        "/api/join",
-        { name: form.name, email: form.email, accessCode: form.accessCode },
-        { withCredentials: true }
-      );
-      return response.data;
+      try {
+        const { data } = await axios.post("/api/join", form, {
+          withCredentials: true,
+        });
+        return data;
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.data?.error) {
+          throw new Error(err.response.data.error);
+        }
+        throw err;
+      }
     },
     onSuccess: () => {
       router.push("/dashboard");
     },
-    onError: () => {
-      console.error("Join failed");
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred";
+      toaster.create({
+        description: message,
+        type: "error",
+        closable: true,
+      });
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    const isValid = await isValidAccessCode(data.accessCode);
+    if (!isValid) {
+      setError("accessCode", {
+        type: "manual",
+        message: "Invalid access code",
+      });
+      return;
+    }
     mutate(data);
   };
 
@@ -52,16 +110,8 @@ export default function JoinPage() {
   if (!mounted) return null;
 
   return (
-    <Box
-      bg="gray.900"
-      color="white"
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      p={4}
-    >
-      <Box maxW="400px" w="full">
+    <Center minH="100vh">
+      <VStack maxW="400px" gap={6}>
         <Center flexDir="column" mb={8}>
           <Image
             src="/ramsoc-logo-blue.svg"
@@ -70,91 +120,56 @@ export default function JoinPage() {
             height={100}
             priority
           />
-          <Heading size="2xl" mt={4}>
-            Join the Competition
-          </Heading>
-          <Text color="gray.400" fontSize="sm" mt={2}>
+          <Heading>Join the Competition</Heading>
+          <Text fontSize="sm" mt={2}>
             Enter your details to participate
           </Text>
         </Center>
 
-        <Box as="form" px={6} onSubmit={handleSubmit(onSubmit)}>
-          {/* Access Code */}
-          <Box mb={4}>
-            <Text mb={1} fontSize="sm">
-              Access Code
-            </Text>
-            <Input
-              {...register("accessCode", { required: true })}
-              placeholder="Enter event access code"
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: "gray.400" }}
-              borderWidth="2px"
-            />
-          </Box>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          style={{ width: "100%" }}
+        >
+          <VStack gap={4} w="full">
+            {fieldConfigs.map(({ key, label, placeholder, type }) => {
+              const errorObj = errors[key] as FieldError | undefined;
+              return (
+                <Field.Root key={key} required invalid={!!errorObj}>
+                  <Field.Label>
+                    {label} <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input
+                    {...register(key, { required: `${label} is required` })}
+                    placeholder={placeholder}
+                    type={type || "text"}
+                    borderWidth="2px"
+                    variant="outline"
+                  />
+                  {errorObj && (
+                    <Field.ErrorText>{errorObj.message}</Field.ErrorText>
+                  )}
+                </Field.Root>
+              );
+            })}
 
-          {/* Username */}
-          <Box mb={4}>
-            <Text mb={1} fontSize="sm">
-              Username
-            </Text>
-            <Input
-              {...register("name", { required: true })}
-              placeholder="e.g. rambo"
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: "gray.400" }}
-              borderWidth="2px"
-              borderColor={errors.name ? "red.500" : "gray.600"}
-            />
-            {errors.name && (
-              <Text color="red.400" fontSize="xs" mt={1}>
-                Please enter your name
-              </Text>
-            )}
-          </Box>
-
-          {/* Email */}
-          <Box mb={6}>
-            <Text mb={1} fontSize="sm">
-              Email
-            </Text>
-            <Input
-              type="email"
-              {...register("email", { required: true })}
-              placeholder="you@example.com"
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: "gray.400" }}
-              borderWidth="2px"
-              borderColor={errors.email ? "red.500" : "gray.600"}
-            />
-            {errors.email && (
-              <Text color="red.400" fontSize="xs" mt={1}>
-                Please enter your email
-              </Text>
-            )}
-          </Box>
-
-          <Center mt={8}>
-            <Button
-              type="submit"
-              bg="blue.400"
-              borderWidth="2px"
-              borderColor="blue.600"
-              w="full"
-              maxW="300px"
-              size="lg"
-              fontWeight="bold"
-              _hover={{ bg: "blue.500" }}
-              loading={isPending}
-            >
-              Enter
-            </Button>
-          </Center>
-        </Box>
-      </Box>
-    </Box>
+            <Center mt={8} w="100%">
+              <Button
+                type="submit"
+                bg="blue.400"
+                borderWidth="2px"
+                borderColor="blue.600"
+                w="full"
+                size="lg"
+                fontWeight="bold"
+                loading={isPending}
+              >
+                Join
+              </Button>
+            </Center>
+          </VStack>
+        </form>
+      </VStack>
+    </Center>
   );
 }
