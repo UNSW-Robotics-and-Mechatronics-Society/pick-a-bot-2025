@@ -1,18 +1,18 @@
 import type { NextRequest } from "next/server";
 import * as yup from "yup";
 
-export type validateRequestError = {
+export type YupValidationError = {
   error?: string;
   status?: number;
 };
 
 export type PreValidator = (
   raw: unknown
-) => validateRequestError | void | Promise<validateRequestError | void>;
+) => YupValidationError | void | Promise<YupValidationError | void>;
 
 export type ExtraValidator<T> = (
   data: T
-) => validateRequestError | void | Promise<validateRequestError | void>;
+) => YupValidationError | void | Promise<YupValidationError | void>;
 
 export const validateRequest = async <
   Schema extends yup.AnyObjectSchema,
@@ -25,20 +25,35 @@ export const validateRequest = async <
     pre?: PreValidator;
     post?: ExtraValidator<T>;
   }
-): Promise<T | validateRequestError> => {
+): Promise<T | YupValidationError> => {
   const body = await request.clone().json();
 
+  return validateObject(body, schema, options, validators);
+};
+
+export const validateObject = async <
+  Schema extends yup.AnyObjectSchema,
+  T = yup.InferType<Schema>,
+>(
+  obj: unknown,
+  schema: Schema,
+  options?: yup.ValidateOptions,
+  validators?: {
+    pre?: PreValidator;
+    post?: ExtraValidator<T>;
+  }
+): Promise<T | YupValidationError> => {
   let validated: T;
 
   if (validators?.pre) {
-    const extraResult = await validators.pre(body);
+    const extraResult = await validators.pre(obj);
     if (extraResult && "error" in extraResult) {
       return extraResult;
     }
   }
 
   try {
-    validated = await schema.validate(body, options);
+    validated = await schema.validate(obj, options);
   } catch (err) {
     if (err instanceof yup.ValidationError) {
       const message = err.errors.join("; ");
@@ -57,9 +72,9 @@ export const validateRequest = async <
   return validated;
 };
 
-export const isValidateRequestError = (
+export const isYupValidationError = (
   result: unknown
-): result is validateRequestError => {
+): result is YupValidationError => {
   return (
     typeof result === "object" &&
     result !== null &&
