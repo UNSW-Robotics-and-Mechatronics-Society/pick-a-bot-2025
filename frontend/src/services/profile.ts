@@ -8,7 +8,7 @@ export const upsertProfile = async (
 ): Promise<{ success: boolean; error?: string }> => {
   const { error } = await supabase
     .from("user")
-    .upsert({ id, name, email, tokens: 100 }, { onConflict: "id" });
+    .upsert({ id, name, email }, { onConflict: "id" });
   if (error) {
     if (error.code === "23505") {
       return { success: false, error: "Profile already exists" };
