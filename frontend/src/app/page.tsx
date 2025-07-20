@@ -1,4 +1,5 @@
 "use client";
+import { getActiveUserName } from "@/services";
 import {
   Box,
   Button,
@@ -12,16 +13,15 @@ import {
 } from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
-import React, { useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import { useEffect, useState } from "react";
 import { PICKABOTS_RULE_BOOK_URL } from "./constants";
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
-  const [jwt] = useLocalStorage("jwt", "");
-  const [name] = useLocalStorage("name", "");
+  const [name, setName] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
+    getActiveUserName().then((userName) => setName(userName || ""));
     setMounted(true);
   }, []);
 
@@ -89,8 +89,8 @@ export default function LandingPage() {
           color="white"
           asChild
         >
-          <NextLink href={jwt ? "/dashboard" : "/join"}>
-            {jwt ? `Enter as ${name}` : "Join"}
+          <NextLink href={name ? "/dashboard" : "/join"}>
+            {name ? `Enter as ${name}` : "Join"}
           </NextLink>
         </Button>
       </Stack>
