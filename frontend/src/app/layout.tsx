@@ -1,4 +1,5 @@
 import { ColorModeButton } from "@/components/ColorModeButton";
+import { Toaster } from "@/components/ui/toaster";
 import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -47,7 +48,10 @@ export default function RootLayout({
         <Provider>
           <main>
             {/* <ArcLogo /> */}
-            <Box textStyle="body">{children}</Box>
+            <Box textStyle="body">
+              {children}
+              <Toaster />
+            </Box>
             <Box pos="fixed" top="2" left="2">
               <ColorModeButton borderColor="gray.200" />
             </Box>
