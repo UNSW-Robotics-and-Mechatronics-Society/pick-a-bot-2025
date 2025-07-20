@@ -4,24 +4,19 @@ import { Box, Button, Center, Heading, Input, Text } from "@chakra-ui/react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useLocalStorage } from "usehooks-ts";
 
 interface FormValues {
   name: string;
   email: string;
+  accessCode: string;
 }
 
-export default function LoginPage() {
+export default function JoinPage() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [accessCode, setAccessCode] = useState("");
-  const [isAccessCodeInvalid, setIsAccessCodeInvalid] = useState(false);
-  const REQUIRED_ACCESS_CODE = "PICKABOT2025";
-
-  const [, setJWT] = useLocalStorage("jwt", "");
-  const [, setStoredEmail] = useLocalStorage("email", "");
-  const [, setStoredName] = useLocalStorage("name", "");
 
   const {
     register,
@@ -29,27 +24,25 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<FormValues>();
 
-  const auth = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (form: FormValues) => {
-      const { data } = await axios.post("/api/auth", {
-        name: form.name,
-        email: form.email,
-      });
-      return data;
+      const response = await axios.post(
+        "/api/join",
+        { name: form.name, email: form.email, accessCode: form.accessCode },
+        { withCredentials: true }
+      );
+      return response.data;
     },
-    onSuccess: ({ jwt, name, email }) => {
-      setJWT(jwt);
-      setStoredName(name);
-      setStoredEmail(email);
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+    onError: () => {
+      console.error("Join failed");
     },
   });
 
   const onSubmit = (data: FormValues) => {
-    if (accessCode !== REQUIRED_ACCESS_CODE) {
-      setIsAccessCodeInvalid(true);
-      return;
-    }
-    auth.mutate(data);
+    mutate(data);
   };
 
   useEffect(() => {
@@ -66,56 +59,43 @@ export default function LoginPage() {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      padding="4"
+      p={4}
     >
-      <Box maxW="400px" width="full">
-        <Center display="flex" flexDirection="column" marginBottom="8">
+      <Box maxW="400px" w="full">
+        <Center flexDir="column" mb={8}>
           <Image
             src="/ramsoc-logo-blue.svg"
             alt="Logo"
             width={100}
             height={100}
+            priority
           />
-          <Heading size="2xl" marginTop="4">
+          <Heading size="2xl" mt={4}>
             Join the Competition
           </Heading>
-          <Text color="gray.400" fontSize="sm" marginTop="2">
+          <Text color="gray.400" fontSize="sm" mt={2}>
             Enter your details to participate
           </Text>
         </Center>
 
-        <Box paddingX="6" as="form" onSubmit={handleSubmit(onSubmit)}>
-          {/* Access Code Field */}
-          <Box paddingBottom="4">
+        <Box as="form" px={6} onSubmit={handleSubmit(onSubmit)}>
+          {/* Access Code */}
+          <Box mb={4}>
             <Text mb={1} fontSize="sm">
               Access Code
             </Text>
             <Input
-              value={accessCode}
-              onChange={(e) => {
-                setAccessCode(e.target.value);
-                setIsAccessCodeInvalid(false);
-              }}
+              {...register("accessCode", { required: true })}
               placeholder="Enter event access code"
               bg="gray.700"
               color="white"
               _placeholder={{ color: "gray.400" }}
               borderWidth="2px"
-              borderColor={isAccessCodeInvalid ? "red.500" : "gray.600"}
-              _focus={{
-                borderColor: isAccessCodeInvalid ? "red.500" : "blue.400",
-              }}
-              type="password"
             />
-            {isAccessCodeInvalid && (
-              <Text color="red.400" fontSize="xs" marginTop="1">
-                Invalid access code
-              </Text>
-            )}
           </Box>
 
-          {/* Username Field */}
-          <Box paddingBottom="4">
+          {/* Username */}
+          <Box mb={4}>
             <Text mb={1} fontSize="sm">
               Username
             </Text>
@@ -129,14 +109,14 @@ export default function LoginPage() {
               borderColor={errors.name ? "red.500" : "gray.600"}
             />
             {errors.name && (
-              <Text color="red.400" fontSize="xs" mt="1">
+              <Text color="red.400" fontSize="xs" mt={1}>
                 Please enter your name
               </Text>
             )}
           </Box>
 
-          {/* Email Field */}
-          <Box paddingBottom="6">
+          {/* Email */}
+          <Box mb={6}>
             <Text mb={1} fontSize="sm">
               Email
             </Text>
@@ -151,24 +131,24 @@ export default function LoginPage() {
               borderColor={errors.email ? "red.500" : "gray.600"}
             />
             {errors.email && (
-              <Text color="red.400" fontSize="xs" mt="1">
+              <Text color="red.400" fontSize="xs" mt={1}>
                 Please enter your email
               </Text>
             )}
           </Box>
 
-          <Center mt="8">
+          <Center mt={8}>
             <Button
               type="submit"
               bg="blue.400"
               borderWidth="2px"
               borderColor="blue.600"
-              width="full"
+              w="full"
               maxW="300px"
               size="lg"
               fontWeight="bold"
               _hover={{ bg: "blue.500" }}
-              loading={auth.isPending}
+              loading={isPending}
             >
               Enter
             </Button>
