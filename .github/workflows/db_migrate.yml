@@ -67,6 +67,6 @@ jobs:
         run: |
           sudo apt-get install -y postgresql-client
           echo "$DATABASE_URL" > db.url
-          psql "$(cat db.url)" -f database/supabase/policies.sql
+          psql "$(cat db.url)" -f database/src/supabase/policies.sql
         env:
           DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
