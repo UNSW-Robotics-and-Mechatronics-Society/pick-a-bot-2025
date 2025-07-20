@@ -3,7 +3,6 @@ ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "vote" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "match" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "current_match" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "upcoming_match" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "cron_log" ENABLE ROW LEVEL SECURITY;
 
 -- Enable Supabase Realtime for tables (only if not already added)
@@ -24,14 +23,6 @@ BEGIN
         WHERE pubname = 'supabase_realtime' AND tablename = 'current_match'
     ) THEN
         ALTER PUBLICATION supabase_realtime ADD TABLE "current_match";
-    END IF;
-
-    -- Add upcoming_match table to realtime if not already present
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_publication_tables
-        WHERE pubname = 'supabase_realtime' AND tablename = 'upcoming_match'
-    ) THEN
-        ALTER PUBLICATION supabase_realtime ADD TABLE "upcoming_match";
     END IF;
 END $$;
 
@@ -62,18 +53,6 @@ BEGIN
           USING (true);
     END IF;
 
-    -- Public read access to upcoming match data
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies
-        WHERE schemaname = 'public' AND tablename = 'upcoming_match' AND policyname = 'Anyone can read upcoming match data'
-    ) THEN
-        CREATE POLICY "Anyone can read upcoming match data"
-          ON "upcoming_match"
-          FOR SELECT
-          TO public
-          USING (true);
-    END IF;
-
     -- Allow authenticated users to view their own user row
     IF NOT EXISTS (
         SELECT 1 FROM pg_policies
@@ -82,6 +61,30 @@ BEGIN
         CREATE POLICY "Enable users to view their own data only"
           ON "user"
           FOR SELECT
+          TO authenticated
+          USING ("id" = auth.uid());
+    END IF;
+
+    -- Allow authenticated users to insert their own user row
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'user' AND policyname = 'Users can insert own user row'
+    ) THEN
+        CREATE POLICY "Users can insert own user row"
+          ON "user"
+          FOR INSERT
+          TO authenticated
+          WITH CHECK ("id" = auth.uid());
+    END IF;
+
+    -- Allow authenticated users to update their own user row
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'user' AND policyname = 'Users can update own user row'
+    ) THEN
+        CREATE POLICY "Users can update own user row"
+          ON "user"
+          FOR UPDATE
           TO authenticated
           USING ("id" = auth.uid());
     END IF;

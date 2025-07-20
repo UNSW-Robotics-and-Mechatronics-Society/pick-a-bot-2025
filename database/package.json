@@ -1,7 +1,7 @@
 {
   "name": "pick-a-bots-database",
   "scripts": {
-    "db:apply-policies": "dotenv -e .env -- sh -c 'psql \"$DATABASE_URL\" -f supabase/policies.sql'",
+    "db:apply-policies": "dotenv -e .env -- sh -c 'psql \"$DATABASE_URL\" -f src/supabase/policies.sql'",
     "db:push": "npx drizzle-kit push --config ./drizzle.config.ts",
     "db:generate": "npx drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "npx drizzle-kit migrate --config ./drizzle.config.ts",

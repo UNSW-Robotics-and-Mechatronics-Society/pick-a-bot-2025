@@ -1,13 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const supabase = createClient(
-      process.env.DB_URL as string,
-      process.env.DB_SECRET_KEY as string
-    );
+    const supabase = await createClient();
+
     const dbResp = await supabase
-      .from("user")
+      .from("leaderboard")
       .select("name, tokens")
       .order("tokens", { ascending: false });
 
@@ -17,10 +16,14 @@ export async function GET() {
 
     console.log(dbResp);
 
-    return Response.json({
+    return NextResponse.json({
       dbResp,
     });
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
