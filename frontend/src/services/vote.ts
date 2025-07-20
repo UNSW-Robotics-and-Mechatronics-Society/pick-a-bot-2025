@@ -6,7 +6,7 @@ export const enforceVoteRules = (
   match: CurrentMatchData,
   vote: VoteFormData
 ) => {
-  if (match.id !== vote.matchId) {
+  if (match.match_id !== vote.matchId) {
     return { error: "Match ID mismatch", status: 400 };
   }
   if (!match.is_final && vote.amount > userTokens * 0.5) {
