@@ -1,8 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Anta&family=Audiowide&display=swap");
 @import "tailwindcss";
 
-body {
-  @apply antialiased overscroll-none;
+html {
+  @apply antialiased overscroll-none max-w-[500px] mx-auto;
+  overflow: auto; /* ensure scrollable if content overflows */
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* main {
@@ -10,4 +13,3 @@ body {
   with screen overflow
   @apply px-4 h-screen;
 } */
-
