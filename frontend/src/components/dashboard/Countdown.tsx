@@ -6,7 +6,7 @@ interface CountdownProps {
   durationMs: number;
 }
 
-const Countdown = ({ underwayTime, durationMs }: CountdownProps) => {
+export const Countdown = ({ underwayTime, durationMs }: CountdownProps) => {
   const [remaining, setRemaining] = useState("05:00");
 
   useEffect(() => {
