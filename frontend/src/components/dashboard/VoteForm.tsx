@@ -44,8 +44,8 @@ export const VoteForm: FC<VoteFormProps> = ({
   currentMatch,
   reloadUserProfile,
 }) => {
-  const [disableForm, setDisableForm] = useState(false);
   const [timeDisabled, setTimeDisabled] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
   useEffect(() => {
     if (!currentMatch?.underway_time) {
@@ -189,14 +189,17 @@ export const VoteForm: FC<VoteFormProps> = ({
         amount: voteQuery.data.vote.used_tokens,
         matchId: voteQuery.data.vote.match_id,
       });
-      setDisableForm(true);
     } else {
       reset({
         botChosen: "",
         amount: 0,
         matchId: currentMatch?.match_id || "",
       });
-      setDisableForm(false);
+    }
+    if (voteQuery.data?.vote.bot_chosen) {
+      setHasVoted(true);
+    } else {
+      setHasVoted(false);
     }
   }, [voteQuery.data, reset, currentMatch?.match_id]);
 
@@ -216,6 +219,7 @@ export const VoteForm: FC<VoteFormProps> = ({
       botChosen: data.botChosen,
       amount: data.amount,
     });
+    setHasVoted(true);
   };
 
   // Calculate current limits
@@ -231,75 +235,76 @@ export const VoteForm: FC<VoteFormProps> = ({
 
   return (
     <Card.Root w="100%" maxW="500px" boxShadow="lg" position="relative">
-      {timeDisabled ? (
+      {hasVoted ? (
         <Box
           position="absolute"
           inset="0"
           bg="rgba(0, 0, 0, 0.8)"
           backdropFilter="blur(8px)"
+          backdropBlur="100px"
           zIndex="overlay"
           borderRadius="inherit"
           display="flex"
           alignItems="center"
           justifyContent="center"
+          boxShadow="inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
         >
-          <Text fontSize="lg" color="red.400" fontWeight="bold">
-            Voting is closed for this match
-          </Text>
+          <VStack gap="2">
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              color="green.600"
+              textAlign="center"
+            >
+              Vote Submitted!
+            </Text>
+            <VStack gap="1" alignItems="flex-start">
+              <Text fontSize="md" color="gray.300" textAlign="center">
+                You voted for:
+              </Text>
+              <DataList.Root
+                orientation="horizontal"
+                gap="1"
+                bg="gray.100"
+                p="2"
+                borderRadius="md"
+                borderWidth="1px"
+                borderColor="gray.300"
+                _dark={{ bg: "gray.800" }}
+              >
+                <DataList.Item>
+                  <DataList.ItemLabel>Bot Chosen</DataList.ItemLabel>
+                  <DataList.ItemValue>
+                    {voteQuery.data?.vote.bot_chosen}
+                  </DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
+                  <DataList.ItemValue>
+                    {voteQuery.data?.vote.used_tokens} tokens
+                  </DataList.ItemValue>
+                </DataList.Item>
+              </DataList.Root>
+            </VStack>
+          </VStack>
         </Box>
       ) : (
-        disableForm && (
+        timeDisabled &&
+        !hasVoted && (
           <Box
             position="absolute"
             inset="0"
             bg="rgba(0, 0, 0, 0.8)"
             backdropFilter="blur(8px)"
-            backdropBlur="100px"
             zIndex="overlay"
             borderRadius="inherit"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            boxShadow="inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
           >
-            <VStack gap="2">
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color="green.600"
-                textAlign="center"
-              >
-                Vote Submitted!
-              </Text>
-              <VStack gap="1" alignItems="flex-start">
-                <Text fontSize="md" color="gray.300" textAlign="center">
-                  You voted for:
-                </Text>
-                <DataList.Root
-                  orientation="horizontal"
-                  gap="1"
-                  bg="gray.100"
-                  p="2"
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="gray.300"
-                  _dark={{ bg: "gray.800" }}
-                >
-                  <DataList.Item>
-                    <DataList.ItemLabel>Bot Chosen</DataList.ItemLabel>
-                    <DataList.ItemValue>
-                      {voteQuery.data?.vote.bot_chosen}
-                    </DataList.ItemValue>
-                  </DataList.Item>
-                  <DataList.Item>
-                    <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
-                    <DataList.ItemValue>
-                      {voteQuery.data?.vote.used_tokens} tokens
-                    </DataList.ItemValue>
-                  </DataList.Item>
-                </DataList.Root>
-              </VStack>
-            </VStack>
+            <Text fontSize="lg" color="red.400" fontWeight="bold">
+              Voting is closed for this match
+            </Text>
           </Box>
         )
       )}
