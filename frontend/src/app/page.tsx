@@ -1,5 +1,5 @@
 "use client";
-import { getActiveUserName } from "@/services";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import {
   Box,
   Button,
@@ -18,10 +18,9 @@ import { PICKABOTS_RULE_BOOK_URL } from "./constants";
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false);
-  const [name, setName] = useState("");
+  const { user } = useUserProfile();
 
   useEffect(() => {
-    getActiveUserName().then((userName) => setName(userName || ""));
     setMounted(true);
   }, []);
 
@@ -89,8 +88,8 @@ export default function LandingPage() {
           color="white"
           asChild
         >
-          <NextLink href={name ? "/dashboard" : "/join"}>
-            {name ? `Enter as ${name}` : "Join"}
+          <NextLink href={user ? "/dashboard" : "/join"}>
+            {user ? `Enter as ${user.name}` : "Join"}
           </NextLink>
         </Button>
       </Stack>
