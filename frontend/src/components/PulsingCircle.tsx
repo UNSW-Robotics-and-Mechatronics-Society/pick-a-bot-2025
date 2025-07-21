@@ -9,7 +9,7 @@ interface PulsingCircleProps {
   borderRadius?: string;
 }
 
-const PulsingCircle: React.FC<PulsingCircleProps> = ({
+export const PulsingCircle: React.FC<PulsingCircleProps> = ({
   color,
   size,
   animationDuration,
