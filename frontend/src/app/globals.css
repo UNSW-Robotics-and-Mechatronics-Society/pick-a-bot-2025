@@ -2,10 +2,14 @@
 @import "tailwindcss";
 
 html {
-  @apply antialiased overscroll-none max-w-[500px] mx-auto;
+  @apply antialiased overscroll-none;
   overflow: auto; /* ensure scrollable if content overflows */
   -ms-overflow-style: none; /* IE & Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+main {
+  @apply max-w-[500px] mx-auto;
 }
 
 /* main {
