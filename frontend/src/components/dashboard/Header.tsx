@@ -15,7 +15,7 @@ interface HeaderProps {
   isUserLoading?: boolean;
 }
 
-const Header: FC<HeaderProps> = ({ user, isUserLoading }) => {
+export const Header: FC<HeaderProps> = ({ user, isUserLoading }) => {
   return (
     <HStack w="100%" display="flex" justifyContent="space-between" inset={1}>
       <HStack>
