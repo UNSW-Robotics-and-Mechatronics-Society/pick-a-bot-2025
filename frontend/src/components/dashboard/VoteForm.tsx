@@ -39,7 +39,7 @@ interface VoteFormProps {
   reloadUserProfile: () => void;
 }
 
-const VoteForm: FC<VoteFormProps> = ({
+export const VoteForm: FC<VoteFormProps> = ({
   user,
   currentMatch,
   reloadUserProfile,
