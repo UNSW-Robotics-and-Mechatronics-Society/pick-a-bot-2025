@@ -3,8 +3,15 @@
 import { CurrentMatch, Header, VoteForm } from "@/components/dashboard";
 import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
+  const [mount, setMount] = useState(false);
+
+  useEffect(() => {
+    setMount(true);
+  }, []);
+
   const {
     user,
     isLoading: isUserLoading,
@@ -16,6 +23,8 @@ export default function DashboardPage() {
     loading: isMatchLoading,
     reload: reloadMatch,
   } = useCurrentMatch();
+
+  if (!mount) return null; // Prevent hydration mismatch
 
   return (
     <VStack minH="100vh">
