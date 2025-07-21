@@ -1,3 +1,4 @@
+import { PulsingCircle } from "@/components";
 import { CurrentMatchData } from "@/schemas";
 import {
   Box,
@@ -14,7 +15,6 @@ import {
 import { useTheme } from "next-themes";
 import { FC, useEffect, useState } from "react";
 import { IoReload } from "react-icons/io5";
-import PulsingCircle from "../PulsingCircle";
 
 interface MatchProps {
   isLoading: boolean;
@@ -203,7 +203,7 @@ interface CurrentMatchProps {
   refetchMatch: () => void;
 }
 
-const CurrentMatch: FC<CurrentMatchProps> = ({
+export const CurrentMatch: FC<CurrentMatchProps> = ({
   isMatchLoading,
   matchPayload,
   refetchMatch,
@@ -263,7 +263,7 @@ const CurrentMatch: FC<CurrentMatchProps> = ({
           >
             No current match available
           </Center>
-          <MatchCard isLoading={isMatchLoading} />
+          <MatchCard isLoading={isMatchLoading} refetchMatch={() => {}} />
         </Box>
       )}
     </Box>
