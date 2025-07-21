@@ -18,38 +18,46 @@ export function useCurrentMatch() {
         .select("*")
         .single();
 
-      if (error || !data) {
-        throw new Error(error?.message || "No current match found");
+      if ((error && error.code !== "PGRST116") || !data) {
+        console.warn("No current match found:", error);
+        return null;
       }
 
       const validated = await validateObject(data, currentMatchDataSchema, {
         abortEarly: false,
         stripUnknown: true,
       });
+
       if (isYupValidationError(validated)) {
         throw new Error("Match data validation failed");
       }
+
       return validated;
     },
   });
 
   useEffect(() => {
     // subscribe to changes
-    const subscription = supabase
-      .channel("public:current_match")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "current_match" },
-        (payload) => {
-          query.refetch();
-          console.log("Current match changed:", payload);
-        }
-      )
-      .subscribe();
+    try {
+      const subscription = supabase
+        .channel("public:current_match")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "current_match" },
+          (payload) => {
+            query.refetch();
+            console.log("Current match changed:", payload);
+          }
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(subscription);
-    };
+      return () => {
+        supabase.removeChannel(subscription);
+      };
+    } catch (error) {
+      console.error("Error setting up subscription:", error);
+      return;
+    }
   }, [supabase, query]);
 
   return {
