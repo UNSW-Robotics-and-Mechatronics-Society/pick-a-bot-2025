@@ -8,8 +8,34 @@ import {
 import { commitVote, enforceVoteRules } from "@/services/vote";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export const GET = async (request: NextRequest) => {
   const supabase = await createClient();
+  const { searchParams } = new URL(request.url);
+
+  const matchId = searchParams.get("matchId");
+  if (!matchId) {
+    return NextResponse.json(
+      { error: "Match ID is required" },
+      { status: 400 }
+    );
+  }
+
+  const { data: voteData, error: voteError } = await supabase
+    .from("vote")
+    .select("*")
+    .eq("match_id", matchId)
+    .single();
+
+  if (voteError || !voteData) {
+    return NextResponse.json({ error: "Vote not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ vote: voteData });
+};
+
+export const POST = async (request: NextRequest) => {
+  const supabase = await createClient();
+  console.log("Processing vote request...");
 
   const vote = await validateRequest(request, voteRequestSchema, {
     abortEarly: false,
@@ -106,4 +132,4 @@ export async function POST(request: NextRequest) {
   return new NextResponse(null, {
     status: 204,
   });
-}
+};
