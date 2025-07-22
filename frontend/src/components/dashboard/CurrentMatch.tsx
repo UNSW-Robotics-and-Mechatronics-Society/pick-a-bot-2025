@@ -22,6 +22,7 @@ interface MatchProps {
   rightTeamScore?: number;
   elapsedTime?: string;
   refetchMatch: () => void;
+  lastFetchedAt?: number;
 }
 
 const MatchCard: FC<MatchProps> = ({
@@ -32,6 +33,7 @@ const MatchCard: FC<MatchProps> = ({
   rightTeamScore = 0,
   elapsedTime = "00:00",
   refetchMatch,
+  lastFetchedAt,
 }) => {
   const theme = useTheme();
   const isDarkMode = theme.theme === "dark";
@@ -63,10 +65,22 @@ const MatchCard: FC<MatchProps> = ({
         bg="transparent"
         variant="outline"
       />
-      <Card.Header display="flex" justifyContent="center" p="0">
-        <Heading size="md" fontWeight="bold">
-          Current Match
-        </Heading>
+      <Card.Header p="0">
+        <VStack gap="0" alignItems="flex-start">
+          <Heading size="md" fontWeight="bold">
+            Current Match
+          </Heading>
+          <Text fontSize="2xs" color={isDarkMode ? "gray.400" : "gray.600"}>
+            Last updated:{" "}
+            {lastFetchedAt
+              ? new Date(lastFetchedAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              : "Never"}
+          </Text>
+        </VStack>
       </Card.Header>
       <Card.Body display="flex" justifyContent="center" p="0">
         <HStack gap="4" justifyContent="space-between">
@@ -197,12 +211,14 @@ interface CurrentMatchProps {
   isMatchLoading: boolean;
   matchPayload: CurrentMatchData | null;
   refetchMatch: () => void;
+  lastFetchedAt?: number;
 }
 
 export const CurrentMatch: FC<CurrentMatchProps> = ({
   isMatchLoading,
   matchPayload,
   refetchMatch,
+  lastFetchedAt,
 }) => {
   const [elapsed, setElapsed] = useState("00:00");
 
@@ -239,6 +255,7 @@ export const CurrentMatch: FC<CurrentMatchProps> = ({
           rightTeamScore={matchPayload.score_bot2}
           elapsedTime={elapsed}
           refetchMatch={refetchMatch}
+          lastFetchedAt={lastFetchedAt}
         />
       ) : (
         <Box pos={"relative"} w="100%" h="18rem">

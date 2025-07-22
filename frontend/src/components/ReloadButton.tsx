@@ -1,5 +1,6 @@
 "use client";
 import { IconButton, IconButtonProps } from "@chakra-ui/react";
+import { FC } from "react";
 import { IoReload } from "react-icons/io5";
 
 interface ReloadButtonProps {
@@ -13,12 +14,12 @@ interface ReloadButtonProps extends Omit<IconButtonProps, "isLoading"> {
   onClick: () => void | Promise<void>;
 }
 
-export default function ReloadButton({
+export const ReloadButton: FC<ReloadButtonProps> = ({
   onClick,
   isLoading,
   icon = <IoReload />,
   ...iconButtonProps
-}: ReloadButtonProps) {
+}) => {
   return (
     <IconButton
       onClick={onClick}
@@ -28,4 +29,4 @@ export default function ReloadButton({
       {icon}
     </IconButton>
   );
-}
+};
