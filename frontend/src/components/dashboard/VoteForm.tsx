@@ -33,6 +33,64 @@ import { RxSlash } from "react-icons/rx";
 import * as yup from "yup";
 import Countdown from "./Countdown";
 
+interface VoteFormOverlayProps {
+  prevVote?: { bot_chosen: string; used_tokens: number };
+  state: "no_current_match" | "no_vote" | "vote_submitted" | "time_disabled";
+}
+
+export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
+  prevVote,
+  state = "no_current_match",
+}) => {
+  const Content = () => {
+    if (state === "no_current_match") {
+      return (
+        <Text fontSize="lg" color="red.400" fontWeight="bold">
+          Voting is closed for this match
+        </Text>
+      );
+    }
+
+    return (
+      <VStack gap="2">
+        <Text fontSize="lg" fontWeight="bold" color="green.600">
+          Vote Submitted!
+        </Text>
+        <DataList.Root orientation="horizontal" gap="1">
+          <DataList.Item>
+            <DataList.ItemLabel>Bot Chosen</DataList.ItemLabel>
+            <DataList.ItemValue>{prevVote?.bot_chosen}</DataList.ItemValue>
+          </DataList.Item>
+          <DataList.Item>
+            <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
+            <DataList.ItemValue>
+              {prevVote?.used_tokens} tokens
+            </DataList.ItemValue>
+          </DataList.Item>
+        </DataList.Root>
+      </VStack>
+    );
+  };
+  return (
+    <Box
+      hidden={state === "no_vote"}
+      position="absolute"
+      inset="0"
+      bg="rgba(0, 0, 0, 0.8)"
+      backdropFilter="blur(8px)"
+      backdropBlur="100px"
+      zIndex="overlay"
+      borderRadius="inherit"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      boxShadow="inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
+    >
+      <Content />
+    </Box>
+  );
+};
+
 interface VoteFormProps {
   user: UserData | null;
   currentMatch: CurrentMatchData | null;
@@ -45,7 +103,6 @@ export const VoteForm: FC<VoteFormProps> = ({
   reloadUserProfile,
 }) => {
   const [timeDisabled, setTimeDisabled] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
 
   useEffect(() => {
     if (!currentMatch?.underway_time) {
@@ -159,6 +216,7 @@ export const VoteForm: FC<VoteFormProps> = ({
       });
 
       reloadUserProfile();
+      voteQuery.refetch();
       reset();
     },
     onError: (error) => {
@@ -196,11 +254,6 @@ export const VoteForm: FC<VoteFormProps> = ({
         matchId: currentMatch?.match_id || "",
       });
     }
-    if (voteQuery.data?.vote.bot_chosen) {
-      setHasVoted(true);
-    } else {
-      setHasVoted(false);
-    }
   }, [voteQuery.data, reset, currentMatch?.match_id]);
 
   const onSubmit = (data: VoteFormData) => {
@@ -219,8 +272,13 @@ export const VoteForm: FC<VoteFormProps> = ({
       botChosen: data.botChosen,
       amount: data.amount,
     });
-    setHasVoted(true);
   };
+
+  const overlayState = (() => {
+    if (!currentMatch) return "no_current_match";
+    if (voteQuery.data?.vote.bot_chosen) return "vote_submitted";
+    return "time_disabled";
+  })();
 
   // Calculate current limits
   const isFinal = currentMatch?.is_final ?? false;
@@ -235,79 +293,7 @@ export const VoteForm: FC<VoteFormProps> = ({
 
   return (
     <Card.Root w="100%" maxW="500px" boxShadow="lg" position="relative">
-      {hasVoted ? (
-        <Box
-          position="absolute"
-          inset="0"
-          bg="rgba(0, 0, 0, 0.8)"
-          backdropFilter="blur(8px)"
-          backdropBlur="100px"
-          zIndex="overlay"
-          borderRadius="inherit"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          boxShadow="inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
-        >
-          <VStack gap="2">
-            <Text
-              fontSize="lg"
-              fontWeight="bold"
-              color="green.600"
-              textAlign="center"
-            >
-              Vote Submitted!
-            </Text>
-            <VStack gap="1" alignItems="flex-start">
-              <Text fontSize="md" color="gray.300" textAlign="center">
-                You voted for:
-              </Text>
-              <DataList.Root
-                orientation="horizontal"
-                gap="1"
-                bg="gray.100"
-                p="2"
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor="gray.300"
-                _dark={{ bg: "gray.800" }}
-              >
-                <DataList.Item>
-                  <DataList.ItemLabel>Bot Chosen</DataList.ItemLabel>
-                  <DataList.ItemValue>
-                    {voteQuery.data?.vote.bot_chosen}
-                  </DataList.ItemValue>
-                </DataList.Item>
-                <DataList.Item>
-                  <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
-                  <DataList.ItemValue>
-                    {voteQuery.data?.vote.used_tokens} tokens
-                  </DataList.ItemValue>
-                </DataList.Item>
-              </DataList.Root>
-            </VStack>
-          </VStack>
-        </Box>
-      ) : (
-        timeDisabled &&
-        !hasVoted && (
-          <Box
-            position="absolute"
-            inset="0"
-            bg="rgba(0, 0, 0, 0.8)"
-            backdropFilter="blur(8px)"
-            zIndex="overlay"
-            borderRadius="inherit"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Text fontSize="lg" color="red.400" fontWeight="bold">
-              Voting is closed for this match
-            </Text>
-          </Box>
-        )
-      )}
+      <VoteFormOverlay prevVote={voteQuery.data?.vote} state={overlayState} />
       <IconButton
         aria-label="help"
         position="absolute"
