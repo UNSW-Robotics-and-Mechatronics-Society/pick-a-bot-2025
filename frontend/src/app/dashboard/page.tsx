@@ -21,7 +21,8 @@ export default function DashboardPage() {
   const {
     match: currentMatch,
     loading: isMatchLoading,
-    reload: reloadMatch,
+    refetch: reloadMatch,
+    lastFetchedAt,
   } = useCurrentMatch();
 
   if (!mount) return null; // Prevent hydration mismatch
@@ -42,6 +43,7 @@ export default function DashboardPage() {
           isMatchLoading={isMatchLoading}
           matchPayload={currentMatch}
           refetchMatch={reloadMatch}
+          lastFetchedAt={lastFetchedAt}
         />
 
         <VoteForm
