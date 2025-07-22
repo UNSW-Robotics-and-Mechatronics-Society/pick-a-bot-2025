@@ -7,7 +7,7 @@ import { currentMatchDataSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export function useCurrentMatch() {
+export const useCurrentMatch = () => {
   const supabase = createClient();
 
   const query = useQuery({
@@ -72,4 +72,4 @@ export function useCurrentMatch() {
     refetch: query.refetch,
     lastFetchedAt: query.dataUpdatedAt,
   };
-}
+};
