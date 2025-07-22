@@ -1,4 +1,4 @@
-import { PulsingCircle } from "@/components";
+import { PulsingCircle, ReloadButton } from "@/components";
 import { CurrentMatchData } from "@/schemas";
 import {
   Box,
@@ -6,7 +6,6 @@ import {
   Center,
   Heading,
   HStack,
-  IconButton,
   Separator,
   Skeleton,
   Text,
@@ -14,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { useTheme } from "next-themes";
 import { FC, useEffect, useState } from "react";
-import { IoReload } from "react-icons/io5";
 
 interface MatchProps {
   isLoading: boolean;
@@ -54,19 +52,17 @@ const MatchCard: FC<MatchProps> = ({
       w="100%"
       pos="relative"
     >
-      <IconButton
-        aria-label="reload match"
-        position="absolute"
+      <ReloadButton
+        isLoading={isLoading}
+        onClick={refetchMatch}
+        pos="absolute"
         top="4"
         right="4"
-        borderRadius="md"
         size="xs"
-        rounded={"full"}
-        variant={"outline"}
-        onClick={refetchMatch}
-      >
-        <IoReload />
-      </IconButton>
+        rounded="full"
+        bg="transparent"
+        variant="outline"
+      />
       <Card.Header display="flex" justifyContent="center" p="0">
         <Heading size="md" fontWeight="bold">
           Current Match
@@ -263,7 +259,7 @@ export const CurrentMatch: FC<CurrentMatchProps> = ({
           >
             No current match available
           </Center>
-          <MatchCard isLoading={isMatchLoading} refetchMatch={() => {}} />
+          <MatchCard isLoading={isMatchLoading} refetchMatch={refetchMatch} />
         </Box>
       )}
     </Box>
