@@ -33,43 +33,75 @@ import { RxSlash } from "react-icons/rx";
 import * as yup from "yup";
 import Countdown from "./Countdown";
 
+type VoteState =
+  | "no_current_match"
+  | "no_vote"
+  | "vote_submitted"
+  | "timed_out";
+
 interface VoteFormOverlayProps {
   prevVote?: { bot_chosen: string; used_tokens: number };
-  state: "no_current_match" | "no_vote" | "vote_submitted" | "time_disabled";
+  state: VoteState;
 }
 
+/**
+ * Logic for displaying the vote form overlay
+ * Handles different states:
+ * - If no current match, shows a message: "Voting is closed for this match"
+ * - If a vote was submitted, shows the bot chosen and tokens used
+ * - If timed out, shows a message: "Voting is closed for this match"
+ * - If no vote and vote window is still open, overlay is hidden
+ */
 export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
   prevVote,
   state = "no_current_match",
 }) => {
   const Content = () => {
-    if (state === "no_current_match") {
-      return (
-        <Text fontSize="lg" color="red.400" fontWeight="bold">
-          Voting is closed for this match
-        </Text>
-      );
+    switch (state) {
+      case "vote_submitted":
+        if (prevVote) {
+          return (
+            <VStack gap="2">
+              <Text fontSize="lg" fontWeight="bold" color="green.600">
+                Vote Submitted!
+              </Text>
+              <DataList.Root orientation="horizontal" gap="1">
+                <DataList.Item>
+                  <DataList.ItemLabel>Bot Picked</DataList.ItemLabel>
+                  <DataList.ItemValue>
+                    {prevVote?.bot_chosen}
+                  </DataList.ItemValue>
+                </DataList.Item>
+                <DataList.Item>
+                  <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
+                  <DataList.ItemValue>
+                    {prevVote?.used_tokens} tokens
+                  </DataList.ItemValue>
+                </DataList.Item>
+              </DataList.Root>
+            </VStack>
+          );
+        }
+      case "timed_out":
+        console.warn("No vote data available");
+        return (
+          <Text fontSize="lg" color="red.400" fontWeight="bold">
+            Voting is closed for this match
+          </Text>
+        );
+      case "no_current_match":
+        return (
+          <Text fontSize="lg" color="red.400" fontWeight="bold">
+            No current match available
+          </Text>
+        );
+      default:
+        return (
+          <Text fontSize="lg" color="red.400" fontWeight="bold">
+            Unknown state: {state}
+          </Text>
+        );
     }
-
-    return (
-      <VStack gap="2">
-        <Text fontSize="lg" fontWeight="bold" color="green.600">
-          Vote Submitted!
-        </Text>
-        <DataList.Root orientation="horizontal" gap="1">
-          <DataList.Item>
-            <DataList.ItemLabel>Bot Chosen</DataList.ItemLabel>
-            <DataList.ItemValue>{prevVote?.bot_chosen}</DataList.ItemValue>
-          </DataList.Item>
-          <DataList.Item>
-            <DataList.ItemLabel>Tokens Used</DataList.ItemLabel>
-            <DataList.ItemValue>
-              {prevVote?.used_tokens} tokens
-            </DataList.ItemValue>
-          </DataList.Item>
-        </DataList.Root>
-      </VStack>
-    );
   };
   return (
     <Box
@@ -103,6 +135,7 @@ export const VoteForm: FC<VoteFormProps> = ({
   reloadUserProfile,
 }) => {
   const [timeDisabled, setTimeDisabled] = useState(false);
+  const [overlayState, setOverlayState] = useState<VoteState>("no_vote");
 
   useEffect(() => {
     if (!currentMatch?.underway_time) {
@@ -274,11 +307,22 @@ export const VoteForm: FC<VoteFormProps> = ({
     });
   };
 
-  const overlayState = (() => {
-    if (!currentMatch) return "no_current_match";
-    if (voteQuery.data?.vote.bot_chosen) return "vote_submitted";
-    return "time_disabled";
-  })();
+  useEffect(() => {
+    if (!currentMatch) {
+      setOverlayState("no_current_match");
+    } else if (voteQuery.data?.vote.bot_chosen) {
+      setOverlayState("vote_submitted");
+    } else if (timeDisabled) {
+      setOverlayState("timed_out");
+    } else if (!voteQuery.data?.vote.bot_chosen && currentMatch.id) {
+      setOverlayState("no_vote");
+    }
+  }, [
+    currentMatch,
+    voteQuery.data?.vote.bot_chosen,
+    timeDisabled,
+    currentMatch?.id,
+  ]);
 
   // Calculate current limits
   const isFinal = currentMatch?.is_final ?? false;
