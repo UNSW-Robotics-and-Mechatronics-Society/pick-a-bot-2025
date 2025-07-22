@@ -62,6 +62,7 @@ const MatchCard: FC<MatchProps> = ({
         right="4"
         size="xs"
         rounded="full"
+        zIndex="overlay"
         bg="transparent"
         variant="outline"
       />
