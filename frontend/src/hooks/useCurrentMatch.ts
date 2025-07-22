@@ -62,9 +62,14 @@ export function useCurrentMatch() {
 
   return {
     match: query.data ?? null,
-    loading: query.isLoading,
+    loading:
+      query.isLoading ||
+      query.isRefetching ||
+      query.isFetching ||
+      query.isPending,
     isError: query.isError,
     error: query.error?.message ?? null,
-    reload: () => query.refetch(),
+    refetch: query.refetch,
+    lastFetchedAt: query.dataUpdatedAt,
   };
 }
