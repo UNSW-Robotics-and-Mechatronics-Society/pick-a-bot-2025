@@ -1,4 +1,3 @@
-// src/hooks/useCurrentMatch.ts
 "use client";
 
 import { isYupValidationError, validateObject } from "@/lib";
