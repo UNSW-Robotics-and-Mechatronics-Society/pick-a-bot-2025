@@ -2,10 +2,10 @@
 
 import { Icon } from "@chakra-ui/react";
 import Image from "next/image";
-import { useColorModeValue } from "./ColorModeButton";
 import { useEffect, useState } from "react";
+import { useColorModeValue } from "./ColorModeButton";
 
-export default function ArcLogo() {
+export const ArcLogo = () => {
   const [isMounted, setIsMounted] = useState(false);
   const logoSrc = useColorModeValue(
     "/unsw_arc_logo_black.svg",
@@ -28,4 +28,6 @@ export default function ArcLogo() {
       />
     </Icon>
   );
-}
+};
+
+export default ArcLogo;

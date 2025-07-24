@@ -47,12 +47,11 @@ export default function RootLayout({
       <body>
         <Provider>
           <main>
-            {/* <ArcLogo /> */}
             <Box textStyle="body">
               {children}
               <Toaster />
             </Box>
-            <Box pos="fixed" top="2" left="2">
+            <Box pos="fixed" top="2" left="2" zIndex="overlay">
               <ColorModeButton borderColor="gray.200" />
             </Box>
           </main>

@@ -1,5 +1,9 @@
-import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
-import { defineTextStyles } from "@chakra-ui/react";
+import {
+  createSystem,
+  defaultConfig,
+  defineConfig,
+  defineTextStyles,
+} from "@chakra-ui/react";
 
 export const textStyles = defineTextStyles({
   body: {
@@ -36,7 +40,7 @@ const customConfig = defineConfig({
     tokens: {
       fonts: {
         body: { value: `"Anta", sans-serif` },
-        heading: { value: `"Audiowide", cursive` },
+        heading: { value: `"Audiowide"` },
       },
     },
     textStyles,

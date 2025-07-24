@@ -9,6 +9,17 @@ export const enforceVoteRules = (
   if (match.match_id !== vote.matchId) {
     return { error: "Match ID mismatch", status: 400 };
   }
+  if (match.underway_time) {
+    const startTs = new Date(match.underway_time).getTime();
+    const cutoffTs = startTs + 5 * 60 * 1000; // +5 minutes
+    if (Date.now() > cutoffTs) {
+      return {
+        ok: false,
+        error: "Betting window has closed for this match",
+        status: 400,
+      };
+    }
+  }
   if (!match.is_final && vote.amount > userTokens * 0.5) {
     return {
       error: "Can only bet up to half your tokens until finals",

@@ -5,13 +5,13 @@ export const voteRequestSchema = yup.object({
     .string()
     .typeError("`matchId` must be a string")
     .required("`matchId` is required"),
-  botChosen: yup.string().trim().required("`botChosen` is required"),
+  botChosen: yup.string().required("Please select a bot"),
   amount: yup
     .number()
-    .typeError("`amount` must be a number")
-    .integer("`amount` must be an integer")
-    .min(1, "`amount` must be at least 1")
-    .required("`amount` is required"),
+    .required("Amount is required")
+    .positive("Amount must be a positive number")
+    .integer("Amount must be a whole number")
+    .min(1, "Minimum bet is 1 token"),
 });
 
 export type VoteFormData = yup.InferType<typeof voteRequestSchema>;

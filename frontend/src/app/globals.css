@@ -1,13 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Anta&family=Audiowide&display=swap");
 @import "tailwindcss";
 
-body {
+html {
   @apply antialiased overscroll-none;
+  overflow: auto; /* ensure scrollable if content overflows */
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
-/* main {
-  This seems to be causing weird colour errors and errors 
-  with screen overflow
-  @apply px-4 h-screen;
-} */
-
+main {
+  @apply max-w-[500px] mx-auto;
+}
