@@ -32,6 +32,7 @@ export default function BracketPage() {
           <iframe 
             src={`https://challonge.com/${process.env.NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID}/module`} 
             className="shadow-[10px_15px_30px_#e1710099] ring-2 ring-amber-600"
+
             width="100%" 
             height="550" 
             style={{ borderRadius: "8px", }}
