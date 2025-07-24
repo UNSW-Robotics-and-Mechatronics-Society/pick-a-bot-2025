@@ -53,7 +53,7 @@ export default function LandingPage() {
                 Each player will be given 100 starting tokens
               </List.Item>
               <List.Item>
-                Each round of the finals you will be able to &quot;vote&quot; on
+                Each round of the finals you will have 5 min to &quot;vote&quot; on
                 a bot
               </List.Item>
               <List.Item>
