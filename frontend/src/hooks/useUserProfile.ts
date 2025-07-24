@@ -30,7 +30,11 @@ export function useUserProfile() {
 
   return {
     user: query.data ?? null,
-    isLoading: query.isLoading,
+    isLoading:
+      query.isLoading ||
+      query.isRefetching ||
+      query.isFetching ||
+      query.isPending,
     isError: query.isError,
     error: query.error,
     /** Call this to force-reload the profile from the server */
