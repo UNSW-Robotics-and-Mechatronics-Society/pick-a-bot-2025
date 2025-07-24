@@ -47,7 +47,6 @@ export default function RootLayout({
       <body>
         <Provider>
           <main>
-            {/* <ArcLogo /> */}
             <Box textStyle="body">
               {children}
               <Toaster />
