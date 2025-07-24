@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const {
     user,
     isLoading: isUserLoading,
-    reload: reloadUserProfile,
+    refetch: reloadUserProfile,
   } = useUserProfile();
 
   const {

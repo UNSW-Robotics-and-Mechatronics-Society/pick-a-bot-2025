@@ -34,6 +34,6 @@ export function useUserProfile() {
     isError: query.isError,
     error: query.error,
     /** Call this to force-reload the profile from the server */
-    reload: query.refetch,
+    refetch: query.refetch,
   };
 }
