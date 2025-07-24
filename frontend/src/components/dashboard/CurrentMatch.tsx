@@ -264,16 +264,14 @@ export const CurrentMatch: FC<CurrentMatchProps> = ({
             position="absolute"
             p="4"
             bg="rgba(0, 0, 0, 0.3)"
-            backdropFilter="blur(10px)"
-            border="1px solid"
-            borderColor="gray.200"
+            backdropFilter="blur(8px)"
             borderRadius="md"
             textAlign="center"
-            color="gray.600"
             h="full"
             inset="0"
             zIndex="overlay"
-            _dark={{ color: "gray.300" }}
+            fontWeight="bold"
+            fontSize="lg"
           >
             No current match available
           </Center>
