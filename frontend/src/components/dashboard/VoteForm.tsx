@@ -85,19 +85,29 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
       case "timed_out":
         console.warn("No vote data available");
         return (
-          <Text fontSize="lg" color="red.400" fontWeight="bold">
+          <Text
+            fontSize="lg"
+            color="red.500"
+            fontWeight="bold"
+            _dark={{ color: "red.400" }}
+          >
             Voting is closed for this match
           </Text>
         );
       case "no_current_match":
         return (
-          <Text fontSize="lg" color="red.400" fontWeight="bold">
+          <Text fontSize="lg" fontWeight="bold">
             No current match available
           </Text>
         );
       default:
         return (
-          <Text fontSize="lg" color="red.400" fontWeight="bold">
+          <Text
+            fontSize="lg"
+            color="red.500"
+            fontWeight="bold"
+            _dark={{ color: "red.400" }}
+          >
             Unknown state: {state}
           </Text>
         );
@@ -108,15 +118,13 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
       hidden={state === "no_vote"}
       position="absolute"
       inset="0"
-      bg="rgba(0, 0, 0, 0.8)"
+      bg="rgba(0, 0, 0, 0.3)"
       backdropFilter="blur(8px)"
-      backdropBlur="100px"
       zIndex="overlay"
       borderRadius="inherit"
       display="flex"
       alignItems="center"
       justifyContent="center"
-      boxShadow="inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
     >
       <Content />
     </Box>
