@@ -11,9 +11,3 @@ html {
 main {
   @apply max-w-[500px] mx-auto;
 }
-
-/* main {
-  This seems to be causing weird colour errors and errors 
-  with screen overflow
-  @apply px-4 h-screen;
-} */
