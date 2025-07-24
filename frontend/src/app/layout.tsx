@@ -1,4 +1,3 @@
-import { ColorModeButton } from "@/components/ColorModeButton";
 import { Toaster } from "@/components/ui/toaster";
 import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
@@ -50,9 +49,6 @@ export default function RootLayout({
             <Box textStyle="body">
               {children}
               <Toaster />
-            </Box>
-            <Box pos="fixed" top="2" left="2" zIndex="overlay">
-              <ColorModeButton borderColor="gray.200" />
             </Box>
           </main>
         </Provider>
