@@ -33,7 +33,6 @@ export type DockProps = {
   distance?: number;
   panelHeight?: number;
   baseItemSize?: number;
-  dockHeight?: number;
   magnification?: number;
   spring?: SpringOptions;
 };
@@ -47,6 +46,12 @@ type DockItemProps = {
   distance: number;
   baseItemSize: number;
   magnification: number;
+};
+
+type DockChildProps = {
+  isHovered?: MotionValue<number>;
+  children?: React.ReactNode;
+  className?: string;
 };
 
 function DockItem({
@@ -94,23 +99,30 @@ function DockItem({
       role="button"
       aria-haspopup="true"
     >
-      {Children.map(children, (child) =>
-        cloneElement(child as React.ReactElement<any>, { isHovered })
-      )}
+      {Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          return cloneElement(child as React.ReactElement<DockChildProps>, {
+            isHovered,
+          });
+        }
+        return child;
+      })}
     </motion.div>
   );
 }
 
-type DockLabelProps = {
-  className?: string;
-  children: React.ReactNode;
-};
+type DockLabelProps = DockChildProps;
 
-function DockLabel({ children, className = "", ...rest }: DockLabelProps) {
-  const { isHovered } = rest as { isHovered: MotionValue<number> };
+function DockLabel({
+  children,
+  className = "",
+  isHovered,
+}: DockLabelProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    if (!isHovered) return;
+
     const unsubscribe = isHovered.on("change", (latest) => {
       setIsVisible(latest === 1);
     });
@@ -136,10 +148,7 @@ function DockLabel({ children, className = "", ...rest }: DockLabelProps) {
   );
 }
 
-type DockIconProps = {
-  className?: string;
-  children: React.ReactNode;
-};
+type DockIconProps = DockChildProps;
 
 function DockIcon({ children, className = "" }: DockIconProps) {
   return <div className={`dock-icon ${className}`}>{children}</div>;
@@ -152,12 +161,10 @@ export default function Dock({
   magnification = 70,
   distance = 200,
   panelHeight = 68,
-  dockHeight = 256,
   baseItemSize = 50,
 }: DockProps) {
   const { colorMode } = useColorMode();
   const mouseX = useMotionValue(Infinity);
-  const isHovered = useMotionValue(0);
 
   // Theme variables
   const themeStyles = useMemo(() => {
@@ -181,27 +188,14 @@ export default function Dock({
     };
   }, [colorMode]);
 
-  const maxHeight = useMemo(
-    () => Math.max(dockHeight, magnification + magnification / 2 + 4),
-    [magnification, dockHeight]
-  );
-  const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight]);
-  const height = useSpring(heightRow, spring);
-
   return (
     <motion.div
       className="dock-outer"
       style={themeStyles as React.CSSProperties}
     >
       <motion.div
-        onMouseMove={({ pageX }) => {
-          isHovered.set(1);
-          mouseX.set(pageX);
-        }}
-        onMouseLeave={() => {
-          isHovered.set(0);
-          mouseX.set(Infinity);
-        }}
+        onMouseMove={({ pageX }) => mouseX.set(pageX)}
+        onMouseLeave={() => mouseX.set(Infinity)}
         className={`dock-panel ${className}`}
         style={{ height: panelHeight }}
         role="toolbar"
