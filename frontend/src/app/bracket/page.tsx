@@ -31,7 +31,7 @@ export default function BracketPage() {
           <Heading pb="4">Competition Bracket</Heading>
           <iframe 
             src={`https://challonge.com/${process.env.NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID}/module`} 
-            className="shadow-[15px_25px_35px_#e1710099] ring-2 ring-amber-600"
+            className="shadow-[10px_15px_30px_#e1710099] ring-2 ring-amber-600"
             width="100%" 
             height="550" 
             style={{ borderRadius: "8px", }}
