@@ -12,11 +12,12 @@ export const config = {
      * - the root page (empty string after `/`)
      * - /join
      * - /api/join
+     * - /api/user/update-tokens
      * - static assets under /public
      * - Next.js internals (_next/static, _next/image)
      * - favicon.ico
      * - common image extensions
      */
-    "/((?!$|join$|api/join$|public/|_next/static|_next/image|favicon\\.ico$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!$|join$|api/join$|api/user/update-tokens$|public/|_next/static|_next/image|favicon\\.ico$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
