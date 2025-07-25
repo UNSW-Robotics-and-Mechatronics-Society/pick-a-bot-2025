@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     .select('user_id, bot_chosen, used_tokens')
     .eq('match_id', match_id);
 
-  if (votesError) return { error: "Error in fetching votes", status: 400};
+  if (votesError) return ({ error: "Error in fetching votes" }, { status: 400 });
   
   for (const vote of votes) {
     let newAmount: number;
