@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createClient();
 
-  const payload = await request.json() as any;
+  const payload: DeletePayload<CurrentMatchData> = await request.json();
   const { match_id, winner } = payload.old_record;
 
   const { data: votes, error: votesError } = await supabase
