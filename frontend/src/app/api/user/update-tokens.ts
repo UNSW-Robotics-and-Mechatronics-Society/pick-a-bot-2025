@@ -45,6 +45,6 @@ export async function POST(request: NextRequest) {
     });
     if (transErr) return NextResponse.json({ error: "Transaction update failed" }, { status: 400 });
   }
-  return { votesUpdated: votes.length, status: 200 };
+  return NextResponse.json({ votesUpdated: votes.length }, {status: 200 });
 }
 
