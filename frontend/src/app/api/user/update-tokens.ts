@@ -7,10 +7,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
-  const supabase = createClient(
-    process.env.DB_URL as string,
-    process.env.DB_SECRET_KEY as string
-  );
+  const supabase = createClient();
 
   const payload = await request.json() as any;
   const { match_id, winner } = payload.record.old;
