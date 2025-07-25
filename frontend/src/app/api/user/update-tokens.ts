@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       balance_before: initial,
       balance_after: newAmount, 
     });
-    if (transErr) return { error: "Transaction update failed", status: 400}
+    if (transErr) return NextResponse.json({ error: "Transaction update failed" }, { status: 400 });
   }
   return { votesUpdated: votes.length, status: 200 };
 }
