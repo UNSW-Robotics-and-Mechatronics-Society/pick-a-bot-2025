@@ -4,10 +4,7 @@ import { type NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
   const webhookSecret = request.headers.get('x-webhook-secret');
   if (webhookSecret !== process.env.WEBHOOK_SECRET) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   const supabase = createClient(
