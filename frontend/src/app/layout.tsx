@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
+import { Anta, Audiowide } from "next/font/google";
 import "./globals.css";
 import Provider from "./Provider";
 
@@ -36,13 +37,27 @@ export const metadata: Metadata = {
   },
 };
 
+const anta = Anta({
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const audiowide = Audiowide({
+  subsets: ["latin"],
+  weight: "400",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${anta.className} ${audiowide.className}`}
+    >
       <body>
         <Provider>
           <main>
