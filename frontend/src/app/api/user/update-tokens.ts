@@ -1,5 +1,14 @@
+import { CurrentMatchData } from "@/schemas";
 import { createClient } from "@supabase/supabase-js";
 import { type NextRequest } from "next/server";
+
+type DeletePayload<T = object> = {
+  type: 'DELETE';
+  table: string;
+  schema: string;
+  record: null;
+  old_record: T;
+};
 
 export async function POST(request: NextRequest) {
   const webhookSecret = request.headers.get('x-webhook-secret');
