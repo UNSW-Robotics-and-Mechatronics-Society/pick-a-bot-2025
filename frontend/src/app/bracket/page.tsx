@@ -42,7 +42,7 @@ export default function BracketPage() {
       <Center w="100%" minH="100vh" p={4} flexDirection="column">
         <Heading pb="4">Competition Bracket</Heading>
         <iframe
-          src={`http://challonge.com/${process.env.NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID}/module`}
+          src={`https://challonge.com/${process.env.NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID}/module`}
           className="shadow-[5px_5px_20px_#e1710099] ring-2 ring-amber-600"
           width="100%"
           height="550"
