@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       .from("user")
       .update({ tokens: newAmount }) 
       .eq('id', vote.user_id);
-    if (updateErr) return { error: "Token update failed", status: 400}
+    if (updateErr) return NextResponse.json({ error: "Token update failed" }, { status: 400 })
     const { error: transErr } = await supabase.from("token_transaction").insert({
       user_id: vote.user_id,
       match_id: match_id,
