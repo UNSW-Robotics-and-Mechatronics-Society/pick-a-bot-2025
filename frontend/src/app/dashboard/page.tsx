@@ -5,9 +5,9 @@ import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
 import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
-import { useRouter } from 'next/navigation'; // Changed import
+import { useRouter } from "next/navigation"; // Changed import
 import { useEffect, useState } from "react";
-import { VscColorMode, VscCombine, VscHome } from 'react-icons/vsc';
+import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
   const [mount, setMount] = useState(false);
@@ -30,14 +30,27 @@ export default function DashboardPage() {
     lastFetchedAt,
   } = useCurrentMatch();
 
+  console.log("Current Match:", currentMatch);
   const { toggleColorMode } = useColorMode();
 
   if (!mount) return null; // Prevent hydration mismatch
-  
+
   const items = [
-    { icon: <VscHome size={18} />, label: 'Home', onClick: () => router.push('/dashboard') },
-    { icon: <VscCombine size={18} />, label: 'Bracket', onClick: () => router.push('/bracket') },
-    { icon: <VscColorMode size={18} />, label: 'Colour Mode', onClick: toggleColorMode},
+    {
+      icon: <VscHome size={18} />,
+      label: "Home",
+      onClick: () => router.push("/dashboard"),
+    },
+    {
+      icon: <VscCombine size={18} />,
+      label: "Bracket",
+      onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <VscColorMode size={18} />,
+      label: "Colour Mode",
+      onClick: toggleColorMode,
+    },
   ];
 
   return (
@@ -66,12 +79,12 @@ export default function DashboardPage() {
           reloadUserProfile={reloadUserProfile}
         />
 
-      <Dock 
-        items={items}
-        panelHeight={68}
-        baseItemSize={50}
-        magnification={70}
-      />
+        <Dock
+          items={items}
+          panelHeight={68}
+          baseItemSize={50}
+          magnification={70}
+        />
       </Center>
     </VStack>
   );
