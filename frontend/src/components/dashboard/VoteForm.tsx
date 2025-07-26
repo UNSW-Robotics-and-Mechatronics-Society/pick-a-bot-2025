@@ -227,16 +227,16 @@ export const VoteForm: FC<VoteFormProps> = ({
   const selectedBot = watch("botChosen");
 
   const voteQuery = useQuery({
-    queryKey: ["currentMatchVote"],
+    queryKey: ["currentMatchVote", currentMatch?.match_id],
     queryFn: async () => {
-      if (!currentMatch) return null;
+      if (!currentMatch?.match_id) return null;
 
       const response = await axios.get(
         `/api/vote?matchId=${currentMatch.match_id}`
       );
       return response.data;
     },
-    enabled: !!currentMatch,
+    enabled: !!currentMatch?.match_id,
     refetchOnWindowFocus: true,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -318,19 +318,14 @@ export const VoteForm: FC<VoteFormProps> = ({
   useEffect(() => {
     if (!currentMatch) {
       setOverlayState("no_current_match");
-    } else if (voteQuery.data?.vote.bot_chosen) {
+    } else if (voteQuery.data?.vote) {
       setOverlayState("vote_submitted");
     } else if (timeDisabled) {
       setOverlayState("timed_out");
-    } else if (!voteQuery.data?.vote.bot_chosen && currentMatch.id) {
+    } else if (!voteQuery.data?.vote && currentMatch.id) {
       setOverlayState("no_vote");
     }
-  }, [
-    currentMatch,
-    voteQuery.data?.vote.bot_chosen,
-    timeDisabled,
-    currentMatch?.id,
-  ]);
+  }, [currentMatch, voteQuery.data?.vote, timeDisabled, currentMatch?.id]);
 
   // Calculate current limits
   const isFinal = currentMatch?.is_final ?? false;
