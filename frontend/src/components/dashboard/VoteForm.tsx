@@ -173,7 +173,7 @@ export const VoteForm: FC<VoteFormProps> = ({
         .positive("Amount must be a positive number")
         .integer("Amount must be a whole number")
         .transform((value) => (isNaN(value) ? 0 : value))
-        .min(1, "Minimum bet is 1 token")
+        .min(1, "Minimum vote is 1 token")
         .test("token-limit", function (value) {
           if (!user || !currentMatch || !value) {
             return this.createError({
@@ -250,7 +250,7 @@ export const VoteForm: FC<VoteFormProps> = ({
     onSuccess: (data, variables) => {
       toaster.create({
         title: "Vote submitted!",
-        description: `You bet ${variables.amount} tokens on ${variables.botChosen}`,
+        description: `You voted ${variables.amount} tokens on ${variables.botChosen}`,
         type: "success",
         closable: true,
       });
@@ -363,7 +363,7 @@ export const VoteForm: FC<VoteFormProps> = ({
       <Card.Header pb="2">
         <VStack gap="0" alignItems="flex-start">
           <Heading size="lg" fontWeight="bold">
-            Place Your Bet
+            Place your vote
           </Heading>
           <Countdown
             underwayTime={String(currentMatch?.underway_time) || ""}

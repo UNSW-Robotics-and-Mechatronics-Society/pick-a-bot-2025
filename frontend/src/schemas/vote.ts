@@ -11,7 +11,7 @@ export const voteRequestSchema = yup.object({
     .required("Amount is required")
     .positive("Amount must be a positive number")
     .integer("Amount must be a whole number")
-    .min(1, "Minimum bet is 1 token"),
+    .min(1, "Minimum vote is 1 token"),
 });
 
 export type VoteFormData = yup.InferType<typeof voteRequestSchema>;
