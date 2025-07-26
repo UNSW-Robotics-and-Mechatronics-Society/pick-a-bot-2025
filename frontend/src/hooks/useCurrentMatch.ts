@@ -19,7 +19,6 @@ export const useCurrentMatch = () => {
         .single();
 
       if ((error && error.code !== "PGRST116") || !data) {
-        console.warn("No current match found:", error);
         return null;
       }
 
@@ -43,6 +42,7 @@ export const useCurrentMatch = () => {
         "postgres_changes",
         { event: "*", schema: "public", table: "current_match" },
         (payload) => {
+          if (!payload.new) return;
           validateObject(payload.new, currentMatchDataSchema, {
             abortEarly: false,
             stripUnknown: true,

@@ -30,7 +30,6 @@ export default function DashboardPage() {
     lastFetchedAt,
   } = useCurrentMatch();
 
-  console.log("Current Match:", currentMatch);
   const { toggleColorMode } = useColorMode();
 
   if (!mount) return null; // Prevent hydration mismatch

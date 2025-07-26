@@ -83,7 +83,6 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
           );
         }
       case "timed_out":
-        console.warn("No vote data available");
         return (
           <Text
             fontSize="lg"
