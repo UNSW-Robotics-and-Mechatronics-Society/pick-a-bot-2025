@@ -1,22 +1,22 @@
+import { loggers } from '@/lib/logger';
 import { getCurrentMatchSchema } from '@/schemas/database';
 import { createClient } from '@supabase/supabase-js';
-import { loggers } from '../../lib/logger';
-import { ParsedCurrentMatch, ParsedMatch } from '../challonge/types';
+import { ParsedMatch } from '../challonge';
+import { Database, Tables } from './database.types';
 
 export class SupabaseAPIService {
 	private supabase;
 	private logger = loggers.database.child({ component: 'supabase-client' });
 
 	constructor(env: Env) {
-		this.supabase = createClient(env.DEFAULT_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+		this.supabase = createClient<Database>(env.DEFAULT_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 	}
 
 	public sortMatches(matches: ParsedMatch[]): ParsedMatch[] {
 		return matches.sort((a, b) => a.ordering - b.ordering);
 	}
 
-	async getCurrentMatch(tournamentId: string): Promise<ParsedCurrentMatch | null> {
-		this.logger.info('Fetching current match for tournament', { tournamentId });
+	async getCurrentMatch(tournamentId: string): Promise<Omit<Tables<'current_match'>, 'id'> | null> {
 		const { data, error } = await this.supabase
 			.from('match')
 			.select('*')
@@ -50,10 +50,6 @@ export class SupabaseAPIService {
 				ordering: data.ordering,
 				tournament_id: data.tournament_id,
 				is_final: data.is_final,
-			}) as ParsedCurrentMatch;
-			this.logger.info('Fetched current match', {
-				tournamentId,
-				matchId: validatedMatch.match_id,
 			});
 			return validatedMatch;
 		} catch (error) {
@@ -62,72 +58,131 @@ export class SupabaseAPIService {
 		}
 	}
 
-	async replaceCurrentMatch(tournamentId: string, match: ParsedCurrentMatch | null): Promise<void> {
-		this.logger.info('Replacing current match for tournament', {
+	async syncCurrentMatch(tournamentId: string): Promise<Omit<Tables<'current_match'>, 'id'> | null> {
+		this.logger.info('Syncing current match for tournament', {
 			tournamentId,
-			matchId: match?.match_id,
 		});
 
 		try {
-			const { error: deleteError } = await this.supabase.from('current_match').delete().gt('ordering', 0);
+			const currentMatch = await this.getCurrentMatch(tournamentId);
+			const existingRows = await this.fetchCurrentMatchRows(tournamentId);
 
-			if (deleteError) {
-				throw new Error(`Failed to delete existing current matches: ${deleteError.message}`);
-			}
-
-			this.logger.info('Deleted existing current matches', { tournamentId });
-
-			// Insert new current match if provided
-			if (match) {
-				const { error: insertError } = await this.supabase.from('current_match').insert([match]);
-
-				if (insertError) {
-					throw new Error(`Failed to insert current match: ${insertError.message}`);
+			if (!existingRows || existingRows.length !== 1) {
+				await this.deleteAllCurrentMatchRows(tournamentId);
+				if (currentMatch) {
+					await this.insertCurrentMatchRow(currentMatch, tournamentId);
+					return currentMatch;
+				} else {
+					this.logger.info('Cleared current match table (no current match to insert)', { tournamentId });
 				}
-
-				this.logger.info('Successfully replaced current match', {
-					tournamentId,
-					matchId: match.match_id,
-				});
 			} else {
-				this.logger.info('Cleared current match table (no current match to insert)', { tournamentId });
+				const row = existingRows[0];
+				if (currentMatch) {
+					await this.updateCurrentMatchRow(row.id, currentMatch, tournamentId);
+					return currentMatch;
+				} else {
+					await this.deleteCurrentMatchRow(row.id, tournamentId);
+				}
 			}
+			return null;
 		} catch (error: any) {
 			this.logger.logError(error, 'Failed to replace current match', { tournamentId });
 			throw error;
 		}
 	}
 
-	async replaceMatches(tournamentId: string, matches: ParsedMatch[]): Promise<void> {
-		this.logger.info('Replacing matches for tournament', {
+	private async fetchCurrentMatchRows(tournamentId: string) {
+		const { data, error } = await this.supabase.from('current_match').select().eq('tournament_id', tournamentId);
+		if (error) throw new Error(`Failed to fetch current_match rows: ${error.message}`);
+		return data ?? [];
+	}
+
+	private async deleteAllCurrentMatchRows(tournamentId: string) {
+		const { error } = await this.supabase.from('current_match').delete().eq('tournament_id', tournamentId);
+		if (error) throw new Error(`Failed to delete current_match rows: ${error.message}`);
+		this.logger.info('Deleted all current_match rows', { tournamentId });
+	}
+
+	private async insertCurrentMatchRow(match: Omit<Tables<'current_match'>, 'id'>, tournamentId: string) {
+		const { error } = await this.supabase.from('current_match').insert([match]);
+		if (error) throw new Error(`Failed to insert current match: ${error.message}`);
+		this.logger.info('Inserted new current match', {
+			tournamentId,
+			matchId: match.match_id,
+		});
+	}
+
+	private async updateCurrentMatchRow(id: string, match: Omit<Tables<'current_match'>, 'id'>, tournamentId: string) {
+		const { error } = await this.supabase.from('current_match').update(match).eq('id', id);
+		if (error) throw new Error(`Failed to update current match: ${error.message}`);
+		this.logger.info('Updated existing current match', {
+			tournamentId,
+			matchId: match.match_id,
+		});
+	}
+
+	private async deleteCurrentMatchRow(id: string, tournamentId: string) {
+		const { error } = await this.supabase.from('current_match').delete().eq('id', id);
+		if (error) throw new Error(`Failed to delete current match row: ${error.message}`);
+		this.logger.info('Cleared current match table (removed existing row)', { tournamentId });
+	}
+
+	private async fetchExistingMatches(tournamentId: string) {
+		const { data, error } = await this.supabase
+			.from('match')
+			.select()
+			.eq('tournament_id', tournamentId)
+			.order('ordering', { ascending: true });
+		if (error) throw new Error(`Failed to fetch existing matches: ${error.message}`);
+		return data ?? [];
+	}
+
+	private needsReplace(existing: Tables<'match'>[], sorted: ParsedMatch[]): boolean {
+		if (existing.length !== sorted.length) return true;
+		return existing.some((em, i) => em.challonge_match_id !== sorted[i]?.challonge_match_id);
+	}
+
+	private async deleteMatches(tournamentId: string) {
+		const { error } = await this.supabase.from('match').delete().eq('tournament_id', tournamentId);
+		if (error) throw new Error(`Failed to delete existing matches: ${error.message}`);
+		this.logger.info('Deleted existing matches', { tournamentId });
+	}
+
+	private async insertMatches(sortedMatches: ParsedMatch[], tournamentId: string) {
+		if (sortedMatches.length > 0) {
+			const { error } = await this.supabase.from('match').insert(sortedMatches);
+			if (error) throw new Error(`Failed to insert new matches: ${error.message}`);
+			this.logger.info('Inserted new matches', {
+				tournamentId,
+				count: sortedMatches.length,
+			});
+		}
+	}
+
+	private async updateMatches(existing: Tables<'match'>[], sorted: ParsedMatch[]) {
+		for (let i = 0; i < existing.length; i++) {
+			const matchId = existing[i].id;
+			const { error } = await this.supabase.from('match').update(sorted[i]).eq('id', matchId);
+			if (error) throw new Error(`Failed to update match ${matchId}: ${error.message}`);
+		}
+		this.logger.info('Updated existing matches', { count: existing.length });
+	}
+
+	async syncMatches(tournamentId: string, matches: ParsedMatch[]): Promise<void> {
+		this.logger.info('Syncing matches for tournament', {
 			tournamentId,
 			matchCount: matches.length,
 		});
 
 		try {
-			// the where clause is a quick hack to delete the entire table ;)
-			const { error: deleteError } = await this.supabase.from('match').delete().gt('ordering', 0);
-
-			if (deleteError) {
-				throw new Error(`Failed to delete existing matches: ${deleteError.message}`);
-			}
-
-			this.logger.debug('Deleted existing matches', { tournamentId });
-
+			const existingMatches = await this.fetchExistingMatches(tournamentId);
 			const sortedMatches = this.sortMatches(matches);
 
-			// Insert new matches
-			if (sortedMatches.length > 0) {
-				const { error: insertError } = await this.supabase.from('match').insert(sortedMatches);
-
-				if (insertError) {
-					throw new Error(`Failed to insert new matches: ${insertError.message}`);
-				}
-
-				this.logger.debug('Inserted new matches', {
-					tournamentId,
-					count: sortedMatches.length,
-				});
+			if (this.needsReplace(existingMatches, sortedMatches)) {
+				await this.deleteMatches(tournamentId);
+				await this.insertMatches(sortedMatches, tournamentId);
+			} else {
+				await this.updateMatches(existingMatches, sortedMatches);
 			}
 
 			this.logger.info('Successfully replaced matches', {

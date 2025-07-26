@@ -31,7 +31,6 @@ export class MatchService {
 				executer,
 			});
 
-			// 1. Fetch matches from Challonge
 			const matches = await this.challongeService.getMatches(config.tournamentId);
 
 			if (!matches || matches.length === 0) {
@@ -51,20 +50,14 @@ export class MatchService {
 				return;
 			}
 
-			// 2. Clear current match before replacing matches
-			await this.supabaseService.replaceCurrentMatch(config.tournamentId, null);
-
-			// 3. Replace match table
-			await this.supabaseService.replaceMatches(config.tournamentId, matches);
+			await this.supabaseService.syncMatches(config.tournamentId, matches);
 
 			this.logger.info('Tournament matches processed successfully', {
 				tournamentId: config.tournamentId,
 				matchesProcessed: matches.length,
 			});
 
-			// 4. Replace current match table
-			const currentMatch = await this.supabaseService.getCurrentMatch(config.tournamentId);
-			await this.supabaseService.replaceCurrentMatch(config.tournamentId, currentMatch);
+			const currentMatch = await this.supabaseService.syncCurrentMatch(config.tournamentId);
 
 			await this.logCronResult(env, executer, scheduledTime, 'SUCCESS', {
 				tournamentId: config.tournamentId,
@@ -84,7 +77,7 @@ export class MatchService {
 	}
 
 	private async cleanupMatches(tournamentId: string): Promise<void> {
-		await this.supabaseService.replaceMatches(tournamentId, []);
+		await this.supabaseService.syncMatches(tournamentId, []);
 	}
 
 	private async logCronResult(env: Env, executer: string, scheduledTime: number, status: string, payload: any): Promise<void> {
