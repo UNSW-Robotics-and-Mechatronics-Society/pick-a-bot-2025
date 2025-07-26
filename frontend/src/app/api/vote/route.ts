@@ -27,10 +27,20 @@ export const GET = async (request: NextRequest) => {
     .single();
 
   if (voteError || !voteData) {
+    if (voteError.code === "PGRST116") {
+      return new NextResponse(null, {
+        status: 204,
+      });
+    }
     return NextResponse.json({ error: "Vote not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ vote: voteData });
+  return NextResponse.json(
+    { vote: voteData },
+    {
+      status: 200,
+    }
+  );
 };
 
 export const POST = async (request: NextRequest) => {
