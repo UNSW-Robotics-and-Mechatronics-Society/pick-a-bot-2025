@@ -18,8 +18,8 @@ interface MatchProps {
   isLoading: boolean;
   leftTeam?: string;
   rightTeam?: string;
-  leftTeamScore?: number;
-  rightTeamScore?: number;
+  leftTeamScore?: number | null;
+  rightTeamScore?: number | null;
   elapsedTime?: string;
   refetchMatch: () => void;
   lastFetchedAt?: number;
@@ -174,7 +174,7 @@ const MatchCard: FC<MatchProps> = ({
       >
         <HStack gap="8" alignItems="center">
           <VStack fontSize="md" gap={1}>
-            <Heading>{rightTeamScore}</Heading>
+            <Heading>{rightTeamScore ?? 0}</Heading>
             <Text fontSize="sm">WINS</Text>
           </VStack>
           <VStack gap={1}>
@@ -193,7 +193,7 @@ const MatchCard: FC<MatchProps> = ({
             <Text>LIVE</Text>
           </VStack>
           <VStack fontSize="md" gap={1}>
-            <Heading>{leftTeamScore}</Heading>
+            <Heading>{leftTeamScore ?? 0}</Heading>
             <Text fontSize="sm">WINS</Text>
           </VStack>
         </HStack>
