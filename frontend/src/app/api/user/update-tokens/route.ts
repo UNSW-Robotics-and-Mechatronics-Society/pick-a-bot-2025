@@ -30,7 +30,30 @@ export const POST = async (request: NextRequest) => {
       { status: 400 }
     );
   }
-  const { match_id, winner } = payload.old_record;
+
+  const { match_id } = payload.old_record;
+
+  if (!match_id) {
+    return NextResponse.json(
+      { error: "Match ID is required" },
+      { status: 400 }
+    );
+  }
+
+  const { data: matchData, error: matchError } = await supabase
+    .from("match")
+    .select("winner")
+    .eq("id", match_id)
+    .single();
+
+  if (matchError || !matchData) {
+    return NextResponse.json(
+      { error: "Failed to fetch match data" },
+      { status: 400 }
+    );
+  }
+
+  const { winner } = matchData;
 
   if (!winner) {
     return NextResponse.json(
