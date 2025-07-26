@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "RAMSoc (SUMOBOTS) PICKABOTS 2025",
     images: [
       {
-        url: "/og-pickabot.png", // TODO: add og image
+        url: "og.png",
         width: 1200,
         height: 630,
         alt: "PICKABOTS - Sumobots 2025",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "PICKABOTS | RAMSoc Sumobots 2025",
     description:
       "Place your votes on Sumobot matches and earn points as they fight it out!",
-    images: ["/og-pickabot.png"], // TODO: add og image
+    images: ["og.png"],
     site: "@ramsoc_unsw",
     creator: "@ramsoc_unsw",
   },
