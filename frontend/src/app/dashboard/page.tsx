@@ -34,7 +34,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!currentMatch) {
-      refetchUserProfile();
+      const timer = setTimeout(refetchUserProfile, 60000);
+      return () => clearTimeout(timer);
     }
   }, [currentMatch, refetchUserProfile]);
 
