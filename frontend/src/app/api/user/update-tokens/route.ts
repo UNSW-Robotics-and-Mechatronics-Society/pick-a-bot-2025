@@ -67,7 +67,7 @@ export const POST = async (request: NextRequest) => {
   // Fetch all votes for this match where bot_chosen != winner
   const { data: votes, error: votesError } = await supabase
     .from("vote")
-    .select("user_id, bot_chosen, used_tokens")
+    .select("user_id, bot_chosen, used_tokens, id")
     .eq("match_id", match_id);
 
   if (votesError)
@@ -138,6 +138,7 @@ export const POST = async (request: NextRequest) => {
       amount: used_tokens,
       balance_after: newAmount,
       balance_before,
+      vote_id: vote.id,
       match_id: match_id,
       user_id: vote.user_id,
       description,

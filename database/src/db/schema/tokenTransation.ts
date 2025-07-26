@@ -1,9 +1,13 @@
 import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { match } from "./match";
 import { user } from "./user";
+import { vote } from "./vote";
 
 export const tokenTransaction = pgTable("token_transaction", {
   id: uuid("id").defaultRandom().primaryKey(),
+  voteId: uuid("vote_id")
+    .notNull()
+    .references(() => vote.id, { onDelete: "cascade" }),
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
