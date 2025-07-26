@@ -38,8 +38,8 @@ export default function BracketPage() {
   ];
 
   return (
-    <VStack minH="100vh" maxW="100vw">
-      <Center w="100%" minH="100vh" p={4} flexDirection="column">
+    <VStack>
+      <Center p={4} flexDirection="column">
         <Heading pb="4">Competition Bracket</Heading>
         <iframe
           src={`https://challonge.com/${process.env.NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID}/module`}
