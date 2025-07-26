@@ -20,17 +20,23 @@ export default function DashboardPage() {
   const {
     user,
     isLoading: isUserLoading,
-    refetch: reloadUserProfile,
+    refetch: refetchUserProfile,
   } = useUserProfile();
 
   const {
     match: currentMatch,
     loading: isMatchLoading,
-    refetch: reloadMatch,
+    refetch: refetchMatch,
     lastFetchedAt,
   } = useCurrentMatch();
 
   const { toggleColorMode } = useColorMode();
+
+  useEffect(() => {
+    if (!currentMatch) {
+      refetchUserProfile();
+    }
+  }, [currentMatch, refetchUserProfile]);
 
   if (!mount) return null; // Prevent hydration mismatch
 
@@ -68,14 +74,14 @@ export default function DashboardPage() {
         <CurrentMatch
           isMatchLoading={isMatchLoading}
           matchPayload={currentMatch}
-          refetchMatch={reloadMatch}
+          refetchMatch={refetchMatch}
           lastFetchedAt={lastFetchedAt}
         />
 
         <VoteForm
           user={user}
           currentMatch={currentMatch}
-          reloadUserProfile={reloadUserProfile}
+          reloadUserProfile={refetchUserProfile}
         />
 
         <Dock
