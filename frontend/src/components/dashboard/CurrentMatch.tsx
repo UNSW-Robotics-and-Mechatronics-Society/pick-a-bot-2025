@@ -174,7 +174,7 @@ const MatchCard: FC<MatchProps> = ({
       >
         <HStack gap="8" alignItems="center">
           <VStack fontSize="md" gap={1}>
-            <Heading>{rightTeamScore ?? 0}</Heading>
+            <Heading>{leftTeamScore ?? 0}</Heading>
             <Text fontSize="sm">WINS</Text>
           </VStack>
           <VStack gap={1}>
@@ -193,7 +193,7 @@ const MatchCard: FC<MatchProps> = ({
             <Text>LIVE</Text>
           </VStack>
           <VStack fontSize="md" gap={1}>
-            <Heading>{leftTeamScore ?? 0}</Heading>
+            <Heading>{rightTeamScore ?? 0}</Heading>
             <Text fontSize="sm">WINS</Text>
           </VStack>
         </HStack>
