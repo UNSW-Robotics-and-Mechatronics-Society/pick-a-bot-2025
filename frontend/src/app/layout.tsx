@@ -6,21 +6,21 @@ import "./globals.css";
 import Provider from "./Provider";
 
 export const metadata: Metadata = {
-  title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+  title: "PICKABOTS | RAMSoc Sumobots 2025",
   description:
     "Vote for your champion and climb the leaderboard as Sumobots battle it out in real time!",
   openGraph: {
-    title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+    title: "PICKABOTS | RAMSoc Sumobots 2025",
     description:
       "Vote for your champion and climb the leaderboard as Sumobots battle it out in real time!",
-    url: "https://sumobots.ramsocunsw.org/2025/pickabots",
-    siteName: "RAMSoc (SUMOBOTS) Pick-A-BOTS 2025",
+    url: "https://pickabots.ramsocunsw.org",
+    siteName: "RAMSoc (SUMOBOTS) PICKABOTS 2025",
     images: [
       {
         url: "/og-pickabot.png", // TODO: add og image
         width: 1200,
         height: 630,
-        alt: "Pick-A-BOTS - Sumobots 2025",
+        alt: "PICKABOTS - Sumobots 2025",
       },
     ],
     locale: "en_AU",
@@ -28,12 +28,18 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pick-A-BOTS | RAMSoc Sumobots 2025",
+    title: "PICKABOTS | RAMSoc Sumobots 2025",
     description:
-      "Place your bets on Sumobot matches and earn points as they fight it out!",
+      "Place your votes on Sumobot matches and earn points as they fight it out!",
     images: ["/og-pickabot.png"], // TODO: add og image
     site: "@ramsoc_unsw",
     creator: "@ramsoc_unsw",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
   },
 };
 
