@@ -14,7 +14,7 @@ export const joinSchema = yup.object({
       (value) => {
         if (!value) return false;
         const lower = value.toLowerCase();
-        return !BANNED_WORDS.some((bad) => lower.includes(bad));
+        return !BANNED_WORDS.some((bad) => lower === bad.toLowerCase());
       }
     ),
   email: yup

@@ -5,9 +5,9 @@ import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
 import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
-import { useRouter } from 'next/navigation'; // Changed import
+import { useRouter } from "next/navigation"; // Changed import
 import { useEffect, useState } from "react";
-import { VscColorMode, VscCombine, VscHome } from 'react-icons/vsc';
+import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
   const [mount, setMount] = useState(false);
@@ -20,24 +20,43 @@ export default function DashboardPage() {
   const {
     user,
     isLoading: isUserLoading,
-    refetch: reloadUserProfile,
+    refetch: refetchUserProfile,
   } = useUserProfile();
 
   const {
     match: currentMatch,
     loading: isMatchLoading,
-    refetch: reloadMatch,
+    refetch: refetchMatch,
     lastFetchedAt,
   } = useCurrentMatch();
 
   const { toggleColorMode } = useColorMode();
 
+  useEffect(() => {
+    if (!currentMatch) {
+      const timer = setTimeout(refetchUserProfile, 30000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentMatch, refetchUserProfile]);
+
   if (!mount) return null; // Prevent hydration mismatch
-  
+
   const items = [
-    { icon: <VscHome size={18} />, label: 'Home', onClick: () => router.push('/dashboard') },
-    { icon: <VscCombine size={18} />, label: 'Bracket', onClick: () => router.push('/bracket') },
-    { icon: <VscColorMode size={18} />, label: 'Colour Mode', onClick: toggleColorMode},
+    {
+      icon: <VscHome size={18} />,
+      label: "Home",
+      onClick: () => router.push("/dashboard"),
+    },
+    {
+      icon: <VscCombine size={18} />,
+      label: "Bracket",
+      onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <VscColorMode size={18} />,
+      label: "Colour Mode",
+      onClick: toggleColorMode,
+    },
   ];
 
   return (
@@ -56,22 +75,22 @@ export default function DashboardPage() {
         <CurrentMatch
           isMatchLoading={isMatchLoading}
           matchPayload={currentMatch}
-          refetchMatch={reloadMatch}
+          refetchMatch={refetchMatch}
           lastFetchedAt={lastFetchedAt}
         />
 
         <VoteForm
           user={user}
           currentMatch={currentMatch}
-          reloadUserProfile={reloadUserProfile}
+          reloadUserProfile={refetchUserProfile}
         />
 
-      <Dock 
-        items={items}
-        panelHeight={68}
-        baseItemSize={50}
-        magnification={70}
-      />
+        <Dock
+          items={items}
+          panelHeight={68}
+          baseItemSize={50}
+          magnification={70}
+        />
       </Center>
     </VStack>
   );

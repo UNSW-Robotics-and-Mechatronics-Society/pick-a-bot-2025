@@ -3,11 +3,12 @@
 import { isYupValidationError, validateObject } from "@/lib";
 import { createClient } from "@/lib/supabase/client";
 import { currentMatchDataSchema } from "@/schemas";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export const useCurrentMatch = () => {
   const supabase = createClient();
+  const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ["current_match"],
@@ -18,7 +19,6 @@ export const useCurrentMatch = () => {
         .single();
 
       if ((error && error.code !== "PGRST116") || !data) {
-        console.warn("No current match found:", error);
         return null;
       }
 
@@ -36,28 +36,32 @@ export const useCurrentMatch = () => {
   });
 
   useEffect(() => {
-    // subscribe to changes
-    try {
-      const subscription = supabase
-        .channel("public:current_match")
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "current_match" },
-          (payload) => {
-            query.refetch();
-            console.log("Current match changed:", payload);
-          }
-        )
-        .subscribe();
+    const subscription = supabase
+      .channel("public:current_match")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "current_match" },
+        (payload) => {
+          if (!payload.new) return;
+          validateObject(payload.new, currentMatchDataSchema, {
+            abortEarly: false,
+            stripUnknown: true,
+          }).then((validated) => {
+            if (!isYupValidationError(validated)) {
+              queryClient.setQueryData(["current_match"], validated);
+            } else {
+              console.warn("Subscription match data validation failed");
+              queryClient.setQueryData(["current_match"], null);
+            }
+          });
+        }
+      )
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(subscription);
-      };
-    } catch (error) {
-      console.error("Error setting up subscription:", error);
-      return;
-    }
-  }, [supabase, query]);
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [supabase, queryClient]);
 
   return {
     match: query.data ?? null,

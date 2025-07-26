@@ -1,4 +1,4 @@
-import { ParsedCurrentMatch } from '@/services/challonge';
+import { Tables } from '@/services/supabase/database.types';
 import * as yup from 'yup';
 
 const matchStateValues = ['pending', 'open', 'complete'] as const;
@@ -20,4 +20,4 @@ export const getCurrentMatchSchema = yup.object({
 		.nullable()
 		.default(() => new Date().toISOString()),
 	is_final: yup.boolean().required().default(false),
-}) satisfies yup.ObjectSchema<ParsedCurrentMatch>;
+}) satisfies yup.ObjectSchema<Omit<Tables<'current_match'>, 'id'>>;

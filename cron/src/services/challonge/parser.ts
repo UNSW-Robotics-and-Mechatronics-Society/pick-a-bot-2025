@@ -71,7 +71,9 @@ export class ChallongeMatchParser {
 			score_bot1: score1,
 			score_bot2: score2,
 			round: attributes.round,
-			state: attributes.state,
+			state: (['pending', 'open', 'complete'] as const).includes(attributes.state as any)
+				? (attributes.state as 'pending' | 'open' | 'complete')
+				: 'pending',
 			underway_time: attributes.timestamps?.underwayAt || null,
 			ordering: attributes.suggestedPlayOrder,
 			tournament_id: tournamentId,
