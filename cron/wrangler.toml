@@ -20,8 +20,9 @@ routes = [
 [env.prod.vars]
 DEFAULT_SUPABASE_URL="https://hgjffdonkkisokreoacp.supabase.co"
 
-[env.prod.triggers]
-crons = ["*/1 * * * *"]
+# Will be running cron on local machine instead
+# [env.prod.triggers]
+# crons = ["*/1 * * * *"]
 
 # Development environment
 [env.dev]
