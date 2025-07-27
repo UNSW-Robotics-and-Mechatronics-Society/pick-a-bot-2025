@@ -1,17 +1,19 @@
 "use client";
 
 import { CurrentMatch, Header, VoteForm } from "@/components/dashboard";
+import { MatchResultOverlay } from "@/components/dashboard/MatchResultOverlay";
 import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
+import { TOKEN_TRANSACTION_TIMEOUT } from "@/constants";
 import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
-import { useRouter } from "next/navigation"; // Changed import
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
   const [mount, setMount] = useState(false);
-  const router = useRouter(); // Now from next/navigation
+  const router = useRouter();
 
   useEffect(() => {
     setMount(true);
@@ -25,16 +27,17 @@ export default function DashboardPage() {
 
   const {
     match: currentMatch,
-    loading: isMatchLoading,
+    isLoading: isMatchLoading,
     refetch: refetchMatch,
     lastFetchedAt,
+    previousMatchResult,
   } = useCurrentMatch();
 
   const { toggleColorMode } = useColorMode();
 
   useEffect(() => {
     if (!currentMatch) {
-      const timer = setTimeout(refetchUserProfile, 30000);
+      const timer = setTimeout(refetchUserProfile, TOKEN_TRANSACTION_TIMEOUT);
       return () => clearTimeout(timer);
     }
   }, [currentMatch, refetchUserProfile]);
@@ -60,7 +63,8 @@ export default function DashboardPage() {
   ];
 
   return (
-    <VStack minH="100vh" maxW="100vw">
+    <VStack minH="100vh" maxW="100vw" position="relative">
+      <MatchResultOverlay previousMatchResult={previousMatchResult} />
       <Center
         flexDirection="column"
         w="100%"
@@ -82,7 +86,7 @@ export default function DashboardPage() {
         <VoteForm
           user={user}
           currentMatch={currentMatch}
-          reloadUserProfile={refetchUserProfile}
+          refetchUserProfile={refetchUserProfile}
         />
 
         <Dock
