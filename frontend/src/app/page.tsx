@@ -65,7 +65,7 @@ export default function LandingPage() {
                 you can &quot;vote&quot; except the final
               </List.Item>
               <List.Item>You are competing to have the most tokens</List.Item>
-              <List.Item>The winner will get a prize of ______</List.Item>
+              <List.Item>The winner will win a ottobot</List.Item>
             </List.Root>
             <Box>
               For more information click{" "}
