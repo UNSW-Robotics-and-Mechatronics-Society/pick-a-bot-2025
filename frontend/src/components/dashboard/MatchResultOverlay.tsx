@@ -69,9 +69,7 @@ export const MatchResultOverlay: FC<MatchResultOverlayProps> = ({
     desc = `You lost ${Math.abs(data.tokenDelta)} tokens.`;
     bg = "red.600/30";
   } else {
-    header = `No tokens gained or lost.`;
-    desc = `You picked: ${data.botChosen ?? "None"}`;
-    bg = "gray.700";
+    return null;
   }
 
   return (
