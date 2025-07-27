@@ -17,8 +17,12 @@ routes = [
   { pattern = "www.cron.pickabots.ramsocunsw.org", custom_domain = true }
 ]
 
-[env.prod.triggers]
-crons = ["*/1 * * * *"]
+[env.prod.vars]
+DEFAULT_SUPABASE_URL="https://hgjffdonkkisokreoacp.supabase.co"
+
+# Will be running cron on local machine instead
+# [env.prod.triggers]
+# crons = ["*/1 * * * *"]
 
 # Development environment
 [env.dev]
@@ -27,6 +31,9 @@ routes = [
   { pattern = "cron.pickabots.dev.ramsocunsw.org", custom_domain = true },
   { pattern = "www.cron.pickabots.dev.ramsocunsw.org", custom_domain = true }
 ]
+
+[env.dev.vars]
+DEFAULT_SUPABASE_URL="https://hgjffdonkkisokreoacp.supabase.co"
 
 [env.dev.triggers]
 crons = ["*/5 * * * *"]
