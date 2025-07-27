@@ -173,31 +173,43 @@ export type Database = {
           amount: number
           balance_after: number
           balance_before: number
+          balance_delta: number
+          bot_chosen: string
           created_at: string
           description: string | null
           id: string
           match_id: string | null
           user_id: string
+          vote_id: string
+          winner: string
         }
         Insert: {
           amount: number
           balance_after: number
           balance_before: number
+          balance_delta: number
+          bot_chosen: string
           created_at?: string
           description?: string | null
           id?: string
           match_id?: string | null
           user_id: string
+          vote_id: string
+          winner: string
         }
         Update: {
           amount?: number
           balance_after?: number
           balance_before?: number
+          balance_delta?: number
+          bot_chosen?: string
           created_at?: string
           description?: string | null
           id?: string
           match_id?: string | null
           user_id?: string
+          vote_id?: string
+          winner?: string
         }
         Relationships: [
           {
@@ -219,6 +231,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_transaction_vote_id_vote_id_fk"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "vote"
             referencedColumns: ["id"]
           },
         ]

@@ -4,6 +4,7 @@ ALTER TABLE "vote" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "match" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "current_match" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "cron_log" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "token_transaction" ENABLE ROW LEVEL SECURITY;
 
 -- Enable Supabase Realtime for tables (only if not already added)
 -- Check if table is already in publication before adding
@@ -123,5 +124,41 @@ BEGIN
           FOR INSERT
           TO service_role
           WITH CHECK (true);
+    END IF;
+
+    -- Allow service_role to select token transactions
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'token_transaction' AND policyname = 'Allow service role select'
+    ) THEN
+        CREATE POLICY "Allow service role select"
+          ON "token_transaction"
+          FOR SELECT
+          TO service_role
+          USING (true);
+    END IF;
+
+    -- Allow service_role to insert token transactions
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'token_transaction' AND policyname = 'Allow service role insert'
+    ) THEN
+        CREATE POLICY "Allow service role insert"
+          ON "token_transaction"
+          FOR INSERT
+          TO service_role
+          WITH CHECK (true);
+    END IF;
+
+    -- Allow authenticated users to view their own token transactions
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'token_transaction' AND policyname = 'Users can view their own token transactions'
+    ) THEN
+        CREATE POLICY "Users can view their own token transactions"
+          ON "token_transaction"
+          FOR SELECT
+          TO authenticated
+          USING ("user_id" = auth.uid());
     END IF;
 END $$;
