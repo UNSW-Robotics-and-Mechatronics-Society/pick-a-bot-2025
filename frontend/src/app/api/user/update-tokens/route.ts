@@ -1,4 +1,4 @@
-import { Tables } from "@/types/database.types";
+import { Database, Tables } from "@/types";
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -16,7 +16,7 @@ export const POST = async (request: NextRequest) => {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const supabase = createClient(
+  const supabase = createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
@@ -112,7 +112,8 @@ export const POST = async (request: NextRequest) => {
 
   // Prepare bulk update and transaction arrays
   const updates = [];
-  const transactions = [];
+  const transactions: Omit<Tables<"token_transaction">, "id" | "created_at">[] =
+    [];
 
   for (const vote of votes) {
     if (alreadyUpdatedUserIds.has(vote.user_id)) continue;
@@ -138,6 +139,9 @@ export const POST = async (request: NextRequest) => {
       amount: used_tokens,
       balance_after: newAmount,
       balance_before,
+      bot_chosen: vote.bot_chosen,
+      winner,
+      balance_delta: newAmount - balance_before,
       vote_id: vote.id,
       match_id: match_id,
       user_id: vote.user_id,
