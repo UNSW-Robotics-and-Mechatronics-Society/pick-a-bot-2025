@@ -127,7 +127,7 @@ export const POST = async (request: NextRequest) => {
     let newAmount = balance_before;
     let description = `Match ${match_id} vote update`;
     if (vote.bot_chosen === winner) {
-      newAmount += used_tokens * 2; // Double tokens for correct guess
+      newAmount += used_tokens;
       description += ` - Correct guess for bot ${vote.bot_chosen}`;
     } else {
       newAmount -= used_tokens; // Lose tokens for wrong guess
