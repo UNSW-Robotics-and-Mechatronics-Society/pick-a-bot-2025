@@ -55,7 +55,7 @@ export const POST = async (request: NextRequest) => {
 
   const { winner } = matchData;
 
-  if (!winner) {
+  if (!winner || winner === "unknown") {
     return NextResponse.json(
       { message: "Match does not have a winner" },
       { status: 200 }
