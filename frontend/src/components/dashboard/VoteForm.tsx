@@ -1,5 +1,5 @@
-import { PICKABOTS_RULE_BOOK_URL } from "@/app/constants";
 import { toaster } from "@/components/ui/toaster";
+import { PICKABOTS_RULE_BOOK_URL } from "@/constants";
 import {
   CurrentMatchData,
   UserData,
@@ -133,13 +133,13 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
 interface VoteFormProps {
   user: UserData | null;
   currentMatch: CurrentMatchData | null;
-  reloadUserProfile: () => void;
+  refetchUserProfile: () => void;
 }
 
 export const VoteForm: FC<VoteFormProps> = ({
   user,
   currentMatch,
-  reloadUserProfile,
+  refetchUserProfile,
 }) => {
   const [timeDisabled, setTimeDisabled] = useState(false);
   const [overlayState, setOverlayState] = useState<VoteState>("no_vote");
@@ -255,7 +255,7 @@ export const VoteForm: FC<VoteFormProps> = ({
         closable: true,
       });
 
-      reloadUserProfile();
+      refetchUserProfile();
       voteQuery.refetch();
       reset();
     },
