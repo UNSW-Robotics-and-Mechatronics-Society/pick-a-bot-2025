@@ -1,5 +1,6 @@
 'use client'
 
+import { useColorMode } from "@/components/ui/color-mode";
 import { Badge, Box, Skeleton, Table, Text } from "@chakra-ui/react";
 
 export type LeaderboardEntry = {
@@ -21,30 +22,40 @@ export const Leaderboard = ({
   error = null,
   currentUsername 
 }: LeaderboardProps) => {
+  const { colorMode } = useColorMode();
+
+  // Theme variables
+  const themeStyles = {
+    borderColor: colorMode === 'dark' ? 'gray.700' : 'gray.200',
+    bgColor: colorMode === 'dark' ? 'gray.800' : 'white',
+    headerBg: colorMode === 'dark' ? 'gray.700' : 'gray.50',
+    rowHover: colorMode === 'dark' ? 'gray.700' : 'gray.50',
+    currentUserBg: colorMode === 'dark' ? 'blue.900' : 'blue.50',
+    currentUserHover: colorMode === 'dark' ? 'blue.800' : 'blue.100',
+    currentUserText: colorMode === 'dark' ? 'blue.200' : 'blue.600',
+    textColor: colorMode === 'dark' ? 'whiteAlpha.900' : 'gray.800'
+  };
+
   if (isLoading) {
-    return (
-      <Box>
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} height="40px" my={2} />
-        ))}
-      </Box>
-    );
+    return <Box>{[...Array(5)].map((_, i) => <Skeleton key={i} height="40px" my={2} />)}</Box>;
   }
 
-  if (error) {
-    return <Text color="red.500">{error}</Text>;
-  }
-
-  if (data.length === 0) {
-    return <Text>No leaderboard data available</Text>;
-  }
+  if (error) return <Text color="red.500">{error}</Text>;
+  if (data.length === 0) return <Text>No leaderboard data available</Text>;
 
   return (
-    <Box border="1px solid" borderColor="gray.200" borderRadius="lg" overflow="hidden">
+    <Box 
+      border="1px solid"
+      borderColor={themeStyles.borderColor}
+      borderRadius="lg"
+      overflow="hidden"
+      bg={themeStyles.bgColor}
+      boxShadow="sm"
+    >
       <Table.ScrollArea height="400px">
         <Table.Root stickyHeader size="sm">
           <Table.Header>
-            <Table.Row bg="gray.50">
+            <Table.Row bg={themeStyles.headerBg}>
               <Table.ColumnHeader width="15%">Rank</Table.ColumnHeader>
               <Table.ColumnHeader>Name</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">Tokens</Table.ColumnHeader>
@@ -54,26 +65,26 @@ export const Leaderboard = ({
             {data.map((entry) => (
               <Table.Row 
                 key={`${entry.name}-${entry.rank}`}
-                bg={entry.name === currentUsername ? 'blue.50' : 'transparent'}
-                _hover={{ bg: entry.name === currentUsername ? 'blue.100' : 'gray.50' }}
+                bg={entry.name === currentUsername ? themeStyles.currentUserBg : 'transparent'}
+                _hover={{ 
+                  bg: entry.name === currentUsername ? themeStyles.currentUserHover : themeStyles.rowHover 
+                }}
+                borderTop="1px solid"
+                borderColor={themeStyles.borderColor}
               >
                 <Table.Cell>
                   <Badge
                     bg={entry.rank <= 3 ? 
                       (entry.rank === 1 ? 'yellow.400' : 
-                      entry.rank === 2 ? 'gray.300' : 
-                      'orange.300') : 
+                       entry.rank === 2 ? 'gray.300' : 
+                       'orange.300') : 
                       'transparent'}
-                    color={entry.rank <= 3 ? 
-                      (entry.rank === 1 ? 'yellow.800' : 
-                      entry.rank === 2 ? 'gray.800' : 
-                      'orange.800') : 
-                      'currentColor'}
+                    color={entry.rank <= 3 ? (colorMode === 'dark' ? 'white' : 'currentColor') : 'currentColor'}
                     borderWidth="1px"
                     borderColor={
                       entry.rank === 1 ? 'yellow.500' : 
                       entry.rank === 2 ? 'gray.400' : 
-                      entry.rank === 3 ? 'orange.400' : 'gray.200'
+                      entry.rank === 3 ? 'orange.400' : themeStyles.borderColor
                     }
                     px={2}
                     py={1}
@@ -92,16 +103,18 @@ export const Leaderboard = ({
                 <Table.Cell>
                   <Text 
                     fontWeight={entry.name === currentUsername ? 'bold' : 'medium'}
-                    color={entry.name === currentUsername ? 'blue.600' : 'inherit'}
+                    color={entry.name === currentUsername ? themeStyles.currentUserText : themeStyles.textColor}
                   >
                     {entry.name}
                     {entry.name === currentUsername && (
-                      <Text as="span" ml={2} color="blue.500" fontSize="sm">(You)</Text>
+                      <Text as="span" ml={2} color={themeStyles.currentUserText} fontSize="sm">(You)</Text>
                     )}
                   </Text>
                 </Table.Cell>
                 <Table.Cell textAlign="end">
-                  <Text fontWeight="bold">{entry.tokens.toLocaleString()}</Text>
+                  <Text fontWeight="bold" color={themeStyles.textColor}>
+                    {entry.tokens.toLocaleString()}
+                  </Text>
                 </Table.Cell>
               </Table.Row>
             ))}
