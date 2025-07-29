@@ -1,109 +1,90 @@
 'use client'
 
-import { Badge, Container, Heading, Table, Text } from "@chakra-ui/react";
+import { useColorMode } from "@/components/ui/color-mode";
+import Dock from "@/components/ui/dock";
+import { Leaderboard, LeaderboardEntry } from "@/components/ui/leaderboard";
+import { Podium } from "@/components/ui/podium";
+import { useUserProfile } from "@/hooks";
+import { Container, Heading } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-type LeaderboardEntry = {
-  name: string;
-  tokens: number;
-};
-
-type RankedLeaderboardEntry = LeaderboardEntry & {
-  rank: number;
-};
-
-type ApiResponse = {
-  dbResp: {
-    data: LeaderboardEntry[];
-  };
-};
-
-// Function to calculate ranks (handles ties)
-const calculateRanks = (entries: LeaderboardEntry[]): RankedLeaderboardEntry[] => {
-  if (entries.length === 0) return [];
-  
-  let currentRank = 1;
-  let previousTokens = entries[0].tokens;
-  
-  return entries.map((entry, index) => {
-    // If current tokens are less than previous, increase rank
-    if (entry.tokens < previousTokens) {
-      currentRank = index + 1;
-    }
-    previousTokens = entry.tokens;
-    
-    return {
-      ...entry,
-      rank: currentRank
-    };
-  });
-};
-
-const Leaderboard = ({ data }: { data: RankedLeaderboardEntry[] }) => {
-  return (
-    <Table.Root size="sm">
-      <Table.Header>
-        <Table.Row>
-          <Table.ColumnHeader width="15%">Rank</Table.ColumnHeader>
-          <Table.ColumnHeader>Name</Table.ColumnHeader>
-          <Table.ColumnHeader textAlign="end">Tokens</Table.ColumnHeader>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {data.map((entry) => (
-          <Table.Row key={`${entry.name}-${entry.rank}`}>
-            <Table.Cell>
-              {entry.rank <= 3 ? (
-                <Badge 
-                  colorScheme={
-                    entry.rank === 1 ? 'yellow' : 
-                    entry.rank === 2 ? 'gray' : 'orange'
-                  }
-                  px={2}
-                  py={1}
-                  borderRadius="full"
-                >
-                  {entry.rank}
-                </Badge>
-              ) : (
-                <Text fontWeight="bold">{entry.rank}</Text>
-              )}
-            </Table.Cell>
-            <Table.Cell>
-              <Text fontWeight="medium">{entry.name}</Text>
-            </Table.Cell>
-            <Table.Cell textAlign="end">
-              <Text fontWeight="bold">{entry.tokens.toLocaleString()}</Text>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
-  );
-};
+import { IoMdRibbon } from "react-icons/io";
+import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function LeaderboardPage() {
-  const [data, setData] = useState<RankedLeaderboardEntry[]>([]);
+  const [data, setData] = useState<LeaderboardEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useUserProfile();
+
+  const [mount, setMount] = useState(false);
+  const router = useRouter();
+  const { toggleColorMode } = useColorMode();
 
   useEffect(() => {
-    fetch('/api/leaderboard')
-      .then((res) => res.json() as Promise<ApiResponse>)
-      .then((result) => {
-        // Calculate ranks after receiving the ordered data
-        const rankedData = calculateRanks(result.dbResp.data);
-        setData(rankedData);
-      })
-      .catch(() => {
-        setData([]);
-      });
+    setMount(true);
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/leaderboard');
+        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const result: LeaderboardEntry[] = await response.json();
+        if (!Array.isArray(result)) throw new Error('Expected an array');
+
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
+  const topThree = data.slice(0, 3);
+
+  if (!mount) return null;
+
+  const items = [
+    {
+      icon: <VscHome size={18} />,
+      label: "Home",
+      onClick: () => router.push("/dashboard"),
+    },
+    {
+      icon: <VscCombine size={18} />,
+      label: "Bracket",
+      onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <IoMdRibbon size={18} />,
+      label: "Leaderboard",
+      onClick: () => router.push("/leaderboard"),
+    },
+    {
+      icon: <VscColorMode size={18} />,
+      label: "Colour Mode",
+      onClick: toggleColorMode,
+    },
+  ];
+
   return (
-    <Container maxW="container.md" py={8}>
+    <Container maxW="container.md" py={8} pb="24">
       <Heading size="xl" mb={6}>
         Token Leaderboard
       </Heading>
-      <Leaderboard data={data} />
+      
+      {!isLoading && topThree.length >= 3 && <Podium topThree={topThree} />}
+      
+      <Leaderboard 
+        data={data} 
+        isLoading={isLoading} 
+        error={error}
+        currentUsername={user?.name} // Pass current username instead of ID
+      />
+      <Dock items={items} />
     </Container>
   );
 }
