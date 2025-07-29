@@ -162,3 +162,12 @@ BEGIN
           USING ("user_id" = auth.uid());
     END IF;
 END $$;
+
+CREATE OR REPLACE VIEW leaderboard AS
+SELECT
+  id,
+  email,
+  name,
+  tokens,
+  DENSE_RANK() OVER (ORDER BY tokens DESC) AS rank
+FROM "user";
