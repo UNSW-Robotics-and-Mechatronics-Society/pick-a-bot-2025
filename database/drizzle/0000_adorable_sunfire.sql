@@ -1,4 +1,4 @@
-CREATE TYPE "public"."match_state" AS ENUM('pending', 'open', 'complete');--> statement-breakpoint
+-- CREATE TYPE "public"."match_state" AS ENUM('pending', 'open', 'complete');--> statement-breakpoint
 CREATE TABLE "cron_log" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"run_at" timestamp with time zone NOT NULL,
