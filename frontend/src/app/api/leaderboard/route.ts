@@ -5,20 +5,17 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    const dbResp = await supabase
+    const { data, error } = await supabase
       .from("leaderboard")
-      .select("name, tokens")
-      .order("tokens", { ascending: false });
+      .select("name, tokens, rank")
+      .order("rank", { ascending: true })
+      .order("name", { ascending: true });
 
-    if (!dbResp.data) {
+    if (!data || error) {
       throw new Error("No data found");
     }
 
-    console.log(dbResp);
-
-    return NextResponse.json({
-      dbResp,
-    });
+    return NextResponse.json(data);
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
     return NextResponse.json(
