@@ -1,5 +1,5 @@
-import { PICKABOTS_RULE_BOOK_URL } from "@/app/constants";
 import { toaster } from "@/components/ui/toaster";
+import { PICKABOTS_RULE_BOOK_URL } from "@/constants";
 import {
   CurrentMatchData,
   UserData,
@@ -83,7 +83,6 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
           );
         }
       case "timed_out":
-        console.warn("No vote data available");
         return (
           <Text
             fontSize="lg"
@@ -134,13 +133,13 @@ export const VoteFormOverlay: FC<VoteFormOverlayProps> = ({
 interface VoteFormProps {
   user: UserData | null;
   currentMatch: CurrentMatchData | null;
-  reloadUserProfile: () => void;
+  refetchUserProfile: () => void;
 }
 
 export const VoteForm: FC<VoteFormProps> = ({
   user,
   currentMatch,
-  reloadUserProfile,
+  refetchUserProfile,
 }) => {
   const [timeDisabled, setTimeDisabled] = useState(false);
   const [overlayState, setOverlayState] = useState<VoteState>("no_vote");
@@ -174,7 +173,7 @@ export const VoteForm: FC<VoteFormProps> = ({
         .positive("Amount must be a positive number")
         .integer("Amount must be a whole number")
         .transform((value) => (isNaN(value) ? 0 : value))
-        .min(1, "Minimum bet is 1 token")
+        .min(1, "Minimum vote is 1 token")
         .test("token-limit", function (value) {
           if (!user || !currentMatch || !value) {
             return this.createError({
@@ -227,16 +226,16 @@ export const VoteForm: FC<VoteFormProps> = ({
   const selectedBot = watch("botChosen");
 
   const voteQuery = useQuery({
-    queryKey: ["currentMatchVote"],
+    queryKey: ["currentMatchVote", currentMatch?.match_id],
     queryFn: async () => {
-      if (!currentMatch) return null;
+      if (!currentMatch?.match_id) return null;
 
       const response = await axios.get(
         `/api/vote?matchId=${currentMatch.match_id}`
       );
       return response.data;
     },
-    enabled: !!currentMatch,
+    enabled: !!currentMatch?.match_id,
     refetchOnWindowFocus: true,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -251,12 +250,12 @@ export const VoteForm: FC<VoteFormProps> = ({
     onSuccess: (data, variables) => {
       toaster.create({
         title: "Vote submitted!",
-        description: `You bet ${variables.amount} tokens on ${variables.botChosen}`,
+        description: `You voted ${variables.amount} tokens on ${variables.botChosen}`,
         type: "success",
         closable: true,
       });
 
-      reloadUserProfile();
+      refetchUserProfile();
       voteQuery.refetch();
       reset();
     },
@@ -318,19 +317,14 @@ export const VoteForm: FC<VoteFormProps> = ({
   useEffect(() => {
     if (!currentMatch) {
       setOverlayState("no_current_match");
-    } else if (voteQuery.data?.vote.bot_chosen) {
+    } else if (voteQuery.data?.vote) {
       setOverlayState("vote_submitted");
     } else if (timeDisabled) {
       setOverlayState("timed_out");
-    } else if (!voteQuery.data?.vote.bot_chosen && currentMatch.id) {
+    } else if (!voteQuery.data?.vote && currentMatch.id) {
       setOverlayState("no_vote");
     }
-  }, [
-    currentMatch,
-    voteQuery.data?.vote.bot_chosen,
-    timeDisabled,
-    currentMatch?.id,
-  ]);
+  }, [currentMatch, voteQuery.data?.vote, timeDisabled, currentMatch?.id]);
 
   // Calculate current limits
   const isFinal = currentMatch?.is_final ?? false;
@@ -369,7 +363,7 @@ export const VoteForm: FC<VoteFormProps> = ({
       <Card.Header pb="2">
         <VStack gap="0" alignItems="flex-start">
           <Heading size="lg" fontWeight="bold">
-            Place Your Bet
+            Place your vote
           </Heading>
           <Countdown
             underwayTime={String(currentMatch?.underway_time) || ""}

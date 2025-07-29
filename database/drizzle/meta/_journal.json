@@ -57,6 +57,27 @@
       "when": 1753344293021,
       "tag": "0007_workable_sister_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1753535313004,
+      "tag": "0008_keen_mystique",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1753765656909,
+      "tag": "0009_light_hellfire_club",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1753766588618,
+      "tag": "0010_rich_lucky_pierre",
+      "breakpoints": true
     }
   ]
 }

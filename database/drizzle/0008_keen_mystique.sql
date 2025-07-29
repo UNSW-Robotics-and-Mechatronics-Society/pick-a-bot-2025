@@ -1,0 +1,2 @@
+ALTER TABLE "token_transaction" ADD COLUMN "vote_id" uuid NOT NULL;--> statement-breakpoint
+ALTER TABLE "token_transaction" ADD CONSTRAINT "token_transaction_vote_id_vote_id_fk" FOREIGN KEY ("vote_id") REFERENCES "public"."vote"("id") ON DELETE cascade ON UPDATE no action;

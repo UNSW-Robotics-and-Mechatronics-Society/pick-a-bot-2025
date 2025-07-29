@@ -1,0 +1,2 @@
+DROP VIEW "public"."leaderboard";--> statement-breakpoint
+CREATE VIEW "public"."leaderboard" AS (select "id", "email", "name", "tokens", DENSE_RANK() OVER (ORDER BY "tokens" DESC) as "rank" from "user" order by rank ASC, "user"."name" ASC);

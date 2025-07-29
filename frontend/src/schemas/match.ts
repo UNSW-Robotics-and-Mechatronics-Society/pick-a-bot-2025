@@ -1,4 +1,5 @@
 // src/schemas/currentMatch.ts
+import { Tables } from "@/types/database.types";
 import * as yup from "yup";
 
 export const currentMatchDataSchema = yup.object({
@@ -15,21 +16,23 @@ export const currentMatchDataSchema = yup.object({
   bot1: yup.string().trim().required("`bot1` is required"),
   bot2: yup.string().trim().required("`bot2` is required"),
 
-  winner: yup.string().trim().nullable().notRequired(),
+  winner: yup.string().trim().nullable().default(null),
 
   score_bot1: yup
     .number()
     .typeError("`score_bot1` must be a number")
     .integer("`score_bot1` must be an integer")
     .min(0, "`score_bot1` cannot be negative")
-    .required("`score_bot1` is required"),
+    .nullable()
+    .default(0),
 
   score_bot2: yup
     .number()
     .typeError("`score_bot2` must be a number")
     .integer("`score_bot2` must be an integer")
     .min(0, "`score_bot2` cannot be negative")
-    .required("`score_bot2` is required"),
+    .nullable()
+    .default(0),
 
   round: yup
     .number()
@@ -43,15 +46,12 @@ export const currentMatchDataSchema = yup.object({
     .oneOf(["open"], "`state` must be open")
     .required("`state` is required"),
 
-  underway_time: yup
-    .date()
-    .typeError("`underway_time` must be a valid date")
-    .nullable()
-    .notRequired(),
+  underway_time: yup.string().nullable().defined(),
 
   updated_time: yup
-    .date()
-    .typeError("`updated_time` must be a valid date")
+    .string()
+    .nullable()
+    .defined()
     .required("`updated_time` is required"),
 
   ordering: yup
@@ -67,6 +67,6 @@ export const currentMatchDataSchema = yup.object({
     .boolean()
     .typeError("`is_final` must be a boolean")
     .required("`is_final` is required"),
-});
+}) satisfies yup.ObjectSchema<Tables<"current_match">>;
 
-export type CurrentMatchData = yup.InferType<typeof currentMatchDataSchema>;
+export type CurrentMatchData = Tables<"current_match">;

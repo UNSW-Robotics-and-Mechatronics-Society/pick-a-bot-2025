@@ -20,9 +20,11 @@ routes = [
 ]
 
 [env.prod.vars]
-NEXT_PUBLIC_SUPABASE_URL="https://trvwmuhioifcbeqgskdz.supabase.co"
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="sb_publishable_SHLNdMcONHZv2Fk9Y5AIhA_lGK6By0U"
+NEXT_PUBLIC_SUPABASE_URL="https://hgjffdonkkisokreoacp.supabase.co"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="sb_publishable_qcwz2j4aNb_pBiq45JB5wg_XBJVR7jz"
 ACCESS_CODE="PICKABOTS2025"
+NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID="sumobots_2025_dev_mid" # TODO: Update to production ID
+WEBHOOK_SECRET="webhook_secret"
 
 [env.dev]
 name = "pick-a-bots-2025-dev"
@@ -35,6 +37,8 @@ routes = [
 NEXT_PUBLIC_SUPABASE_URL="https://hgjffdonkkisokreoacp.supabase.co"
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY="sb_publishable_qcwz2j4aNb_pBiq45JB5wg_XBJVR7jz"
 ACCESS_CODE="PICKABOTS2025"
+NEXT_PUBLIC_CHALLONGE_TOURNAMENT_ID="sumobots_2025_dev_mid"
+WEBHOOK_SECRET="webhook_secret"
 
 
 # ----------------------------

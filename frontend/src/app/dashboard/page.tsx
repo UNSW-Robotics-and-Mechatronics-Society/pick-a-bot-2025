@@ -1,17 +1,19 @@
 "use client";
 
 import { CurrentMatch, Header, VoteForm } from "@/components/dashboard";
+import { MatchResultOverlay } from "@/components/dashboard/MatchResultOverlay";
 import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
+import { TOKEN_TRANSACTION_TIMEOUT } from "@/constants";
 import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
-import { useRouter } from 'next/navigation'; // Changed import
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { VscColorMode, VscCombine, VscHome } from 'react-icons/vsc';
+import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
   const [mount, setMount] = useState(false);
-  const router = useRouter(); // Now from next/navigation
+  const router = useRouter();
 
   useEffect(() => {
     setMount(true);
@@ -20,28 +22,49 @@ export default function DashboardPage() {
   const {
     user,
     isLoading: isUserLoading,
-    refetch: reloadUserProfile,
+    refetch: refetchUserProfile,
   } = useUserProfile();
 
   const {
     match: currentMatch,
-    loading: isMatchLoading,
-    refetch: reloadMatch,
+    isLoading: isMatchLoading,
+    refetch: refetchMatch,
     lastFetchedAt,
+    previousMatchResult,
   } = useCurrentMatch();
 
   const { toggleColorMode } = useColorMode();
 
+  useEffect(() => {
+    if (!currentMatch) {
+      const timer = setTimeout(refetchUserProfile, TOKEN_TRANSACTION_TIMEOUT);
+      return () => clearTimeout(timer);
+    }
+  }, [currentMatch, refetchUserProfile]);
+
   if (!mount) return null; // Prevent hydration mismatch
-  
+
   const items = [
-    { icon: <VscHome size={18} />, label: 'Home', onClick: () => router.push('/dashboard') },
-    { icon: <VscCombine size={18} />, label: 'Bracket', onClick: () => router.push('/bracket') },
-    { icon: <VscColorMode size={18} />, label: 'Colour Mode', onClick: toggleColorMode},
+    {
+      icon: <VscHome size={18} />,
+      label: "Home",
+      onClick: () => router.push("/dashboard"),
+    },
+    {
+      icon: <VscCombine size={18} />,
+      label: "Bracket",
+      onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <VscColorMode size={18} />,
+      label: "Colour Mode",
+      onClick: toggleColorMode,
+    },
   ];
 
   return (
-    <VStack minH="100vh" maxW="100vw">
+    <VStack minH="100vh" maxW="100vw" position="relative">
+      <MatchResultOverlay previousMatchResult={previousMatchResult} />
       <Center
         flexDirection="column"
         w="100%"
@@ -56,22 +79,22 @@ export default function DashboardPage() {
         <CurrentMatch
           isMatchLoading={isMatchLoading}
           matchPayload={currentMatch}
-          refetchMatch={reloadMatch}
+          refetchMatch={refetchMatch}
           lastFetchedAt={lastFetchedAt}
         />
 
         <VoteForm
           user={user}
           currentMatch={currentMatch}
-          reloadUserProfile={reloadUserProfile}
+          refetchUserProfile={refetchUserProfile}
         />
 
-      <Dock 
-        items={items}
-        panelHeight={68}
-        baseItemSize={50}
-        magnification={70}
-      />
+        <Dock
+          items={items}
+          panelHeight={68}
+          baseItemSize={50}
+          magnification={70}
+        />
       </Center>
     </VStack>
   );

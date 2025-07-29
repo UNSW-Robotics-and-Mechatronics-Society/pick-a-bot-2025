@@ -22,7 +22,7 @@ export const enforceVoteRules = (
   }
   if (!match.is_final && vote.amount > userTokens * 0.5) {
     return {
-      error: "Can only bet up to half your tokens until finals",
+      error: "Can only vote up to half your tokens until finals",
       status: 400,
     };
   }
