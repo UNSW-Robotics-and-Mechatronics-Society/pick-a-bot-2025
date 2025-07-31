@@ -23,22 +23,38 @@ export default function LeaderboardPage() {
     setMount(true);
 
     const fetchData = async () => {
-      try {
-        const response = await fetch('/api/leaderboard');
+    try {
+      const response = await fetch('/api/leaderboard');
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-        const result: LeaderboardData = await response.json();
+      const result: LeaderboardData = await response.json();
 
-        console.log("Fetched leaderboard data:", result);
+      // Check if self user is already in the top list
+      const selfInTop = result.top.some(entry => entry.name === result.self.name);
 
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
-      } finally {
-        setIsLoading(false);
+      // If not, add them to the bottom
+      if (!selfInTop) {
+        result.top.push(result.self);
+
+        // Re-sort and re-rank
+        result.top.sort((a, b) => b.points - a.points);
+        result.top = result.top.map((entry, i) => ({
+          ...entry,
+          rank: i + 1,
+        }));
+
+        // Update self's rank again after rerank
+        result.self = result.top.find(entry => entry.name === result.self.name)!;
       }
-    };
+
+      setData(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
     fetchData();
   }, []);
