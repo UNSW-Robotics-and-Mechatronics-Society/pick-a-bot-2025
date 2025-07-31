@@ -5,7 +5,6 @@ import Dock from "@/components/ui/dock";
 import { Leaderboard } from "@/components/ui/leaderboard";
 import { Podium } from "@/components/ui/podium";
 import { LeaderboardData } from "@/components/ui/types";
-import { useUserProfile } from "@/hooks";
 import { Container, Heading } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,8 +15,6 @@ export default function LeaderboardPage() {
   const [data, setData] = useState<LeaderboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useUserProfile();
-
   const [mount, setMount] = useState(false);
   const router = useRouter();
   const { toggleColorMode } = useColorMode();
@@ -45,8 +42,6 @@ export default function LeaderboardPage() {
 
     fetchData();
   }, []);
-
-  const topThree = data?.top.slice(0, 3) ?? [];
 
   if (!mount) return null;
 
