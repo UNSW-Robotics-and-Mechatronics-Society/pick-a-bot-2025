@@ -2,8 +2,9 @@
 
 import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
-import { Leaderboard, LeaderboardEntry } from "@/components/ui/leaderboard";
+import { Leaderboard } from "@/components/ui/leaderboard";
 import { Podium } from "@/components/ui/podium";
+import { LeaderboardData } from "@/components/ui/types";
 import { useUserProfile } from "@/hooks";
 import { Container, Heading } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
@@ -12,7 +13,7 @@ import { IoMdRibbon } from "react-icons/io";
 import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
 
 export default function LeaderboardPage() {
-  const [data, setData] = useState<LeaderboardEntry[]>([]);
+  const [data, setData] = useState<LeaderboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUserProfile();
@@ -23,14 +24,16 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setMount(true);
+
     const fetchData = async () => {
       try {
         const response = await fetch('/api/leaderboard');
-        
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-        const result: LeaderboardEntry[] = await response.json();
-        if (!Array.isArray(result)) throw new Error('Expected an array');
+        const result: LeaderboardData = await response.json();
+
+        console.log("Fetched leaderboard data:", result);
 
         setData(result);
       } catch (err) {
@@ -43,7 +46,7 @@ export default function LeaderboardPage() {
     fetchData();
   }, []);
 
-  const topThree = data.slice(0, 3);
+  const topThree = data?.top.slice(0, 3) ?? [];
 
   if (!mount) return null;
 
@@ -75,15 +78,17 @@ export default function LeaderboardPage() {
       <Heading size="xl" mb={6}>
         Token Leaderboard
       </Heading>
-      
-      {!isLoading && topThree.length >= 3 && <Podium topThree={topThree} />}
-      
-      <Leaderboard 
-        data={data} 
-        isLoading={isLoading} 
-        error={error}
-        currentUsername={user?.name} // Pass current username instead of ID
-      />
+
+      {!isLoading && data && data.top.length >= 3 && <Podium data={data} />}
+
+      {data && (
+        <Leaderboard
+          data={data}
+          isLoading={isLoading}
+          error={error}
+        />
+      )}
+
       <Dock items={items} />
     </Container>
   );
