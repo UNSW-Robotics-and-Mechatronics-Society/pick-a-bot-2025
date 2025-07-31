@@ -76,7 +76,7 @@ const VoteHistory = () => {
   return (
     <VStack>
       <Center p={4} flexDirection="column">
-        <Heading pb="4">Voting History</Heading>
+        <Heading pb="4">Vote History</Heading>
       </Center>
       {voteHistory.length > 0 ? (
         voteHistory.map((vote: VoteHistoryItem, index) => (
