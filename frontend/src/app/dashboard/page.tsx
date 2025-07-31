@@ -9,7 +9,7 @@ import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
+import { VscColorMode, VscCombine, VscHistory, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
   const [mount, setMount] = useState(false);
@@ -54,6 +54,11 @@ export default function DashboardPage() {
       icon: <VscCombine size={18} />,
       label: "Bracket",
       onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <VscHistory size={18} />,
+      label: "Vote History",
+      onClick: () => router.push("/vote-history"),
     },
     {
       icon: <VscColorMode size={18} />,
