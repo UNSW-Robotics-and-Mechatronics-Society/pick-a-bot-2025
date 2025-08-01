@@ -9,6 +9,7 @@ import { useCurrentMatch, useUserProfile } from "@/hooks";
 import { Center, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { IoMdRibbon } from "react-icons/io";
 import { VscColorMode, VscCombine, VscHistory, VscHome } from "react-icons/vsc";
 
 export default function DashboardPage() {
@@ -59,6 +60,11 @@ export default function DashboardPage() {
       icon: <VscHistory size={18} />,
       label: "Vote History",
       onClick: () => router.push("/vote-history"),
+    },
+    {
+      icon: <IoMdRibbon size={18} />,
+      label: "Leaderboard",
+      onClick: () => router.push("/leaderboard"),
     },
     {
       icon: <VscColorMode size={18} />,
