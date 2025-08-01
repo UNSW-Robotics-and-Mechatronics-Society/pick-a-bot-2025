@@ -6,7 +6,7 @@ import { Center, Heading, VStack } from "@chakra-ui/react";
 import { useRouter } from "next/navigation"; // Changed import
 import { useEffect, useState } from "react";
 import { IoMdRibbon } from "react-icons/io";
-import { VscColorMode, VscCombine, VscHome } from "react-icons/vsc";
+import { VscColorMode, VscCombine, VscHistory, VscHome } from "react-icons/vsc";
 
 export default function BracketPage() {
   const [mount, setMount] = useState(false);
@@ -30,6 +30,11 @@ export default function BracketPage() {
       icon: <VscCombine size={18} />,
       label: "Bracket",
       onClick: () => router.push("/bracket"),
+    },
+    {
+      icon: <VscHistory size={18} />,
+      label: "Vote History",
+      onClick: () => router.push("/vote-history"),
     },
     {
       icon: <IoMdRibbon size={18} />,
