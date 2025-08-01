@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { useColorMode } from "@/components/ui/color-mode";
 import Dock from "@/components/ui/dock";
@@ -26,19 +26,24 @@ export default function LeaderboardPage() {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/leaderboard');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const response = await fetch("/api/leaderboard");
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
 
         const result: LeaderboardData = await response.json();
 
-        const selfInTop = result.top.some(entry => entry.name === result.self.name);
+        const selfInTop = result.top.some(
+          (entry) => entry.name === result.self.name
+        );
         if (!selfInTop) {
           result.top.push(result.self);
         }
 
         setData(result);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
+        setError(
+          err instanceof Error ? err.message : "Failed to load leaderboard"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -46,7 +51,6 @@ export default function LeaderboardPage() {
 
     fetchData();
   }, []);
-
 
   if (!mount || !user) return null;
 
@@ -81,13 +85,7 @@ export default function LeaderboardPage() {
 
       {!isLoading && data && data.top.length >= 3 && <Podium data={data} />}
 
-      {data && (
-        <Leaderboard
-          data={data}
-          isLoading={isLoading}
-          error={error}
-        />
-      )}
+      {data && <Leaderboard data={data} isLoading={isLoading} error={error} />}
 
       <Dock items={items} />
     </Container>
