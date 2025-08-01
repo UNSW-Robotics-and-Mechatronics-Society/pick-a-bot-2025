@@ -5,6 +5,7 @@ import Dock from "@/components/ui/dock";
 import { Leaderboard } from "@/components/ui/leaderboard";
 import { Podium } from "@/components/ui/podium";
 import { LeaderboardData } from "@/components/ui/types";
+import { useUserProfile } from "@/hooks";
 import { Container, Heading } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,48 +19,36 @@ export default function LeaderboardPage() {
   const [mount, setMount] = useState(false);
   const router = useRouter();
   const { toggleColorMode } = useColorMode();
+  const { user } = useUserProfile();
 
   useEffect(() => {
     setMount(true);
 
     const fetchData = async () => {
-    try {
-      const response = await fetch('/api/leaderboard');
+      try {
+        const response = await fetch('/api/leaderboard');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result: LeaderboardData = await response.json();
 
-      const result: LeaderboardData = await response.json();
+        const selfInTop = result.top.some(entry => entry.name === result.self.name);
+        if (!selfInTop) {
+          result.top.push(result.self);
+        }
 
-      // Check if self user is already in the top list
-      const selfInTop = result.top.some(entry => entry.name === result.self.name);
-
-      // If not, add them to the bottom
-      if (!selfInTop) {
-        result.top.push(result.self);
-
-        // Re-sort and re-rank
-        result.top.sort((a, b) => b.points - a.points);
-        result.top = result.top.map((entry, i) => ({
-          ...entry,
-          rank: i + 1,
-        }));
-
-        // Update self's rank again after rerank
-        result.self = result.top.find(entry => entry.name === result.self.name)!;
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
+      } finally {
+        setIsLoading(false);
       }
-
-      setData(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
     fetchData();
   }, []);
 
-  if (!mount) return null;
+
+  if (!mount || !user) return null;
 
   const items = [
     {
