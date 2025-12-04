@@ -18,7 +18,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import "./dock.css";
+import "./Dock.css";
 
 export type DockItemData = {
   icon: React.ReactNode;
@@ -113,7 +113,11 @@ function DockItem({
 
 type DockLabelProps = DockChildProps;
 
-function DockLabel({ children, className = "", isHovered }: DockLabelProps) {
+function DockLabel({
+  children,
+  className = "",
+  isHovered,
+}: DockLabelProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
